@@ -1,6 +1,6 @@
 package net.javol.compiler;
 
-import net.javol.Option;
+import net.javol.Key;
 import net.javol.Param;
 
 import javax.lang.model.element.ExecutableElement;
@@ -58,8 +58,8 @@ class ParameterMethods {
 
   boolean anyMnemonics() {
     return options.stream()
-        .map(method -> method.getAnnotation(Option.class))
-        .map(Option::mnemonic)
+        .map(method -> method.getAnnotation(Key.class))
+        .map(Key::mnemonic)
         .anyMatch(mnemonic -> mnemonic != ' ');
   }
 }

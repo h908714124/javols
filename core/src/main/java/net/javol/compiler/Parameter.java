@@ -4,7 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
-import net.javol.Option;
+import net.javol.Key;
 import net.javol.coerce.Coercion;
 import net.javol.coerce.CoercionProvider;
 import net.javol.coerce.FlagCoercion;
@@ -127,8 +127,8 @@ public final class Parameter {
       Optional<TypeElement> collectorClass = annotationUtil.get(net.javol.Param.class, "collectedBy");
       return createPositional(alreadyCreated, sourceMethod, positionalIndex, description, mapperClass, collectorClass, optionType, tool);
     } else {
-      Optional<TypeElement> mapperClass = annotationUtil.get(Option.class, "mappedBy");
-      Optional<TypeElement> collectorClass = annotationUtil.get(Option.class, "collectedBy");
+      Optional<TypeElement> mapperClass = annotationUtil.get(Key.class, "mappedBy");
+      Optional<TypeElement> collectorClass = annotationUtil.get(Key.class, "collectedBy");
       return createNonpositional(anyMnemonics, alreadyCreated, sourceMethod, description, mapperClass, collectorClass, optionType, tool);
     }
   }
@@ -147,7 +147,7 @@ public final class Parameter {
     if (shortName == null && longName == null) {
       throw ValidationException.create(sourceMethod, "Define either long name or a short name");
     }
-    Option parameter = sourceMethod.getAnnotation(Option.class);
+    Key parameter = sourceMethod.getAnnotation(Key.class);
     checkShortName(sourceMethod, parameter.mnemonic());
     checkName(sourceMethod, parameter.value());
     ParamName name = findParamName(params, sourceMethod);
@@ -214,7 +214,7 @@ public final class Parameter {
   }
 
   private static String shortName(List<Parameter> params, ExecutableElement sourceMethod) {
-    Option param = sourceMethod.getAnnotation(Option.class);
+    Key param = sourceMethod.getAnnotation(Key.class);
     if (param == null) {
       return null;
     }
@@ -231,7 +231,7 @@ public final class Parameter {
   }
 
   private static String longName(List<Parameter> params, ExecutableElement sourceMethod) {
-    Option param = sourceMethod.getAnnotation(Option.class);
+    Key param = sourceMethod.getAnnotation(Key.class);
     if (param == null) {
       return null;
     }

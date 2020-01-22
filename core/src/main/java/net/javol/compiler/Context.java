@@ -2,7 +2,7 @@ package net.javol.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import net.javol.Command;
+import net.javol.Data;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -60,7 +60,7 @@ public final class Context {
       List<Parameter> parameters,
       List<Parameter> positionalParams,
       List<Parameter> options) {
-    Command annotation = sourceElement.getAnnotation(Command.class);
+    Data annotation = sourceElement.getAnnotation(Data.class);
     boolean helpParameterEnabled = !annotation.helpDisabled();
 
     return new Context(
@@ -74,7 +74,7 @@ public final class Context {
   }
 
   private static String programName(TypeElement sourceType) {
-    Command annotation = sourceType.getAnnotation(Command.class);
+    Data annotation = sourceType.getAnnotation(Data.class);
     if (!annotation.value().isEmpty()) {
       return annotation.value();
     }

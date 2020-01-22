@@ -3,8 +3,8 @@ package net.javol.compiler;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import net.javol.Command;
-import net.javol.Option;
+import net.javol.Data;
+import net.javol.Key;
 import net.javol.Param;
 import net.javol.coerce.SuppliedClassValidator;
 import net.javol.compiler.view.GeneratedClass;
@@ -49,7 +49,7 @@ public final class Processor extends AbstractProcessor {
 
   @Override
   public Set<String> getSupportedAnnotationTypes() {
-    return Stream.of(Command.class, Option.class, Param.class)
+    return Stream.of(Data.class, Key.class, Param.class)
         .map(Class::getCanonicalName)
         .collect(toSet());
   }
@@ -71,7 +71,7 @@ public final class Processor extends AbstractProcessor {
       return false;
     }
     if (annotations.stream().map(TypeElement::getQualifiedName)
-        .noneMatch(name -> name.contentEquals(Command.class.getCanonicalName()))) {
+        .noneMatch(name -> name.contentEquals(Data.class.getCanonicalName()))) {
       return false;
     }
     getAnnotatedTypes(env).forEach(this::processSourceElements);
@@ -141,7 +141,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private Set<TypeElement> getAnnotatedTypes(RoundEnvironment env) {
-    Set<? extends Element> annotated = env.getElementsAnnotatedWith(Command.class);
+    Set<? extends Element> annotated = env.getElementsAnnotatedWith(Data.class);
     return ElementFilter.typesIn(annotated);
   }
 
@@ -189,7 +189,7 @@ public final class Processor extends AbstractProcessor {
       Parameter param = Parameter.create(anyMnemonics, tool, result, method, null, getDescription(method), optionType);
       result.add(param);
     }
-    if (!sourceElement.getAnnotation(Command.class).helpDisabled()) {
+    if (!sourceElement.getAnnotation(Data.class).helpDisabled()) {
       checkHelp(result);
     }
     return result;
@@ -258,21 +258,21 @@ public final class Processor extends AbstractProcessor {
       throw ValidationException.create(method,
           "The method may not declare any exceptions.");
     }
-    if (method.getAnnotation(Param.class) == null && method.getAnnotation(Option.class) == null) {
+    if (method.getAnnotation(Param.class) == null && method.getAnnotation(Key.class) == null) {
       throw ValidationException.create(method,
           String.format("Annotate this method with either @%s or @%s",
-              Option.class.getSimpleName(), Param.class.getSimpleName()));
+              Key.class.getSimpleName(), Param.class.getSimpleName()));
     }
-    if (method.getAnnotation(Param.class) != null && method.getAnnotation(Option.class) != null) {
+    if (method.getAnnotation(Param.class) != null && method.getAnnotation(Key.class) != null) {
       throw ValidationException.create(method,
           String.format("Use either @%s or @%s annotation, but not both",
-              Option.class.getSimpleName(), Param.class.getSimpleName()));
+              Key.class.getSimpleName(), Param.class.getSimpleName()));
     }
   }
 
   private List<ExecutableElement> getAnnotatedMethods(RoundEnvironment env, Set<? extends TypeElement> annotations) {
     List<ExecutableElement> methods = new ArrayList<>();
-    for (Class<? extends Annotation> annotation : Arrays.asList(Option.class, Param.class)) {
+    for (Class<? extends Annotation> annotation : Arrays.asList(Key.class, Param.class)) {
       if (annotations.stream().map(TypeElement::getQualifiedName)
           .anyMatch(name -> name.contentEquals(annotation.getCanonicalName()))) {
         methods.addAll(methodsIn(env.getElementsAnnotatedWith(annotation)));
@@ -298,9 +298,9 @@ public final class Processor extends AbstractProcessor {
     if (enclosingElement.getKind() != ElementKind.CLASS) {
       throw ValidationException.create(enclosingElement, "The enclosing element must be a class.");
     }
-    if (enclosingElement.getAnnotation(Command.class) == null) {
+    if (enclosingElement.getAnnotation(Data.class) == null) {
       throw ValidationException.create(enclosingElement,
-          "The class must have the @" + Command.class.getSimpleName() + " annotation.");
+          "The class must have the @" + Data.class.getSimpleName() + " annotation.");
     }
   }
 }
