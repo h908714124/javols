@@ -5,24 +5,22 @@ import com.squareup.javapoet.ParameterSpec;
 import net.javols.coerce.BasicInfo;
 import net.javols.coerce.Coercion;
 import net.javols.coerce.MapperClassValidator;
-import net.javols.coerce.NonFlagCoercion;
-import net.javols.coerce.NonFlagSkew;
+import net.javols.coerce.Skew;
 import net.javols.coerce.either.Either;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 class MapperAttempt {
 
   private final CodeBlock extractExpr;
   private final ParameterSpec constructorParam;
-  private final NonFlagSkew skew;
+  private final Skew skew;
   private final TypeMirror testType;
   private final TypeElement mapperClass;
 
-  MapperAttempt(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, NonFlagSkew skew, TypeElement mapperClass) {
+  MapperAttempt(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew, TypeElement mapperClass) {
     this.testType = testType;
     this.extractExpr = extractExpr;
     this.constructorParam = constructorParam;
@@ -30,15 +28,13 @@ class MapperAttempt {
     this.mapperClass = mapperClass;
   }
 
-  static CodeBlock autoCollectExpr(BasicInfo basicInfo, NonFlagSkew skew) {
+  static CodeBlock autoCollectExpr(BasicInfo basicInfo, Skew skew) {
     switch (skew) {
       case OPTIONAL:
-        return CodeBlock.of(".findAny()");
+        return CodeBlock.builder().build();
       case REQUIRED:
-        return CodeBlock.of(".findAny().orElseThrow($T.$L::missingRequired)", basicInfo.optionType(),
-            basicInfo.parameterName().enumConstant());
-      case REPEATABLE:
-        return CodeBlock.of(".collect($T.toList())", Collectors.class);
+        return CodeBlock.of("orElseThrow(() -> new $T($S))",
+            "Missing: " + basicInfo.parameterName());
       default:
         throw new AssertionError("unknown skew: " + skew);
     }
@@ -46,7 +42,7 @@ class MapperAttempt {
 
   Either<String, Coercion> findCoercion(BasicInfo basicInfo) {
     return new MapperClassValidator(basicInfo::failure, basicInfo.tool(), testType, mapperClass).checkReturnType()
-        .map(Function.identity(), mapperType ->
-            new NonFlagCoercion(basicInfo, autoCollectExpr(basicInfo, skew), mapperType, extractExpr, skew, constructorParam));
+        .map(Function.identity(), mapExpr ->
+            new Coercion(basicInfo, mapExpr, autoCollectExpr(basicInfo, skew), extractExpr, skew, constructorParam));
   }
 }

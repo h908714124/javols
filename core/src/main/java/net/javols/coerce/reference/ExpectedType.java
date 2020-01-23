@@ -2,7 +2,6 @@ package net.javols.coerce.reference;
 
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collector;
 
 public class ExpectedType<E> {
 
@@ -10,7 +9,6 @@ public class ExpectedType<E> {
   private final Class<E> expectedClass;
 
   public static final ExpectedType<Function> FUNCTION = new ExpectedType<>("MAPPER", Function.class);
-  public static final ExpectedType<Collector> COLLECTOR = new ExpectedType<>("COLLECTOR", Collector.class);
 
   private ExpectedType(String name, Class<E> expectedClass) {
     this.name = name;

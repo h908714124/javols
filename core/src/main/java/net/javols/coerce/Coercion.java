@@ -5,35 +5,60 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import net.javols.compiler.ParamName;
 
-public abstract class Coercion {
+public class Coercion {
 
   private final ParameterSpec constructorParam;
   private final FieldSpec field;
   private final ParamName paramName;
 
-  Coercion(ParameterSpec constructorParam, FieldSpec field, ParamName paramName) {
+  private final CodeBlock mapExpr;
+
+  private final CodeBlock extractExpr;
+  private final CodeBlock collectExpr;
+
+  private final Skew skew;
+
+  public Coercion(BasicInfo basicInfo,
+                  CodeBlock mapExpr,
+                  CodeBlock collectExpr,
+                  CodeBlock extractExpr,
+                  Skew skew,
+                  ParameterSpec constructorParam) {
     this.constructorParam = constructorParam;
-    this.field = field;
-    this.paramName = paramName;
+    this.field = basicInfo.fieldSpec();
+    this.paramName = basicInfo.parameterName();
+    this.mapExpr = mapExpr;
+    this.extractExpr = extractExpr;
+    this.skew = skew;
+    this.collectExpr = collectExpr;
   }
 
-  public final ParameterSpec constructorParam() {
+  public ParameterSpec constructorParam() {
     return constructorParam;
   }
 
-  public final FieldSpec field() {
+  public FieldSpec field() {
     return field;
   }
 
-  public final ParamName paramName() {
+  public ParamName paramName() {
     return paramName;
   }
 
-  public abstract CodeBlock mapExpr();
+  public CodeBlock mapExpr() {
+    return mapExpr;
+  }
 
-  public abstract CodeBlock extractExpr();
+  public CodeBlock collectExpr() {
+    return collectExpr;
+  }
 
-  public abstract CodeBlock collectExpr();
+  public CodeBlock extractExpr() {
+    return extractExpr;
+  }
 
-  public abstract Skew getSkew();
+  public Skew getSkew() {
+    return skew;
+  }
+
 }
