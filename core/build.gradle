@@ -32,7 +32,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Automatic-Module-Name': 'net.javol.compiler',
+                'Automatic-Module-Name': 'net.javols.compiler',
                 'Implementation-Version': project.properties['version']
         )
     }
@@ -77,17 +77,17 @@ gradle.taskGraph.whenReady { taskGraph ->
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'javol'
+            artifactId = 'javols'
             from components.java
 
             artifact sourcesJar
             artifact javadocJar
 
             pom {
-                name = 'javol'
+                name = 'javols'
                 packaging = 'jar'
-                description = 'The javol command line parser'
-                url = 'https://github.com/h908714124/javol'
+                description = 'The javols command line parser'
+                url = 'https://github.com/h908714124/javols'
 
                 licenses {
                     license {
@@ -103,9 +103,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:svn:https://github.com/h908714124/javol.git'
-                    developerConnection = 'scm:svn:https://github.com/h908714124/javol.git'
-                    url = 'https://github.com/h908714124/javol'
+                    connection = 'scm:svn:https://github.com/h908714124/javols.git'
+                    developerConnection = 'scm:svn:https://github.com/h908714124/javols.git'
+                    url = 'https://github.com/h908714124/javols'
                 }
             }
         }

@@ -28,7 +28,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Automatic-Module-Name': 'net.javol',
+                'Automatic-Module-Name': 'net.javols',
                 'Implementation-Version': project.properties['version']
         )
     }
@@ -73,17 +73,17 @@ gradle.taskGraph.whenReady { taskGraph ->
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'javol-annotations'
+            artifactId = 'javols-annotations'
             from components.java
 
             artifact sourcesJar
             artifact javadocJar
 
             pom {
-                name = 'javol-annotations'
+                name = 'javols-annotations'
                 packaging = 'jar'
-                description = 'Annotations for the javol annotation processor'
-                url = 'https://github.com/h908714124/javol'
+                description = 'Annotations for the javols annotation processor'
+                url = 'https://github.com/h908714124/javols'
 
                 licenses {
                     license {
@@ -99,9 +99,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:svn:https://github.com/h908714124/javol.git'
-                    developerConnection = 'scm:svn:https://github.com/h908714124/javol.git'
-                    url = 'https://github.com/h908714124/javol'
+                    connection = 'scm:svn:https://github.com/h908714124/javols.git'
+                    developerConnection = 'scm:svn:https://github.com/h908714124/javols.git'
+                    url = 'https://github.com/h908714124/javols'
                 }
             }
         }
