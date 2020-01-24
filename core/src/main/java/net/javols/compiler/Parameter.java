@@ -1,31 +1,24 @@
 package net.javols.compiler;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import net.javols.Key;
 import net.javols.coerce.Coercion;
 import net.javols.coerce.CoercionProvider;
-import net.javols.coerce.FlagCoercion;
 import net.javols.coerce.Skew;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.Character.isWhitespace;
 import static net.javols.compiler.Constants.NONPRIVATE_ACCESS_MODIFIERS;
 
 /**
@@ -36,22 +29,13 @@ public final class Parameter {
   // null if absent
   private final String longName;
 
-  // null if absent
-  private final String shortName;
-
   private final ExecutableElement sourceMethod;
-
-  private final String bundleKey;
 
   private final String shape;
 
   private final List<String> names;
 
   private final Coercion coercion;
-
-  private final List<String> description;
-
-  private final Integer positionalIndex;
 
   private static ParamName findParamName(
       List<Parameter> alreadyCreated,
@@ -66,50 +50,17 @@ public final class Parameter {
     return result;
   }
 
-  private static void checkBundleKey(
-      String bundleKey,
-      List<Parameter> alreadyCreated,
-      ExecutableElement sourceMethod) {
-    if (bundleKey.isEmpty()) {
-      return;
-    }
-    for (int i = 0; i < bundleKey.length(); i++) {
-      char c = bundleKey.charAt(i);
-      if (Character.isWhitespace(c)) {
-        throw ValidationException.create(sourceMethod,
-            "The bundle key may not contain whitespace characters.");
-      }
-    }
-    for (Parameter param : alreadyCreated) {
-      if (param.bundleKey.isEmpty()) {
-        continue;
-      }
-      if (param.bundleKey.equals(bundleKey)) {
-        throw ValidationException.create(sourceMethod,
-            "Duplicate bundle key.");
-      }
-    }
-  }
-
   private Parameter(
-      String shortName,
       String longName,
       ExecutableElement sourceMethod,
-      String bundleKey,
       String shape,
       List<String> names,
-      Coercion coercion,
-      List<String> description,
-      Integer positionalIndex) {
-    this.bundleKey = bundleKey;
+      Coercion coercion) {
     this.shape = shape;
     this.names = names;
     this.coercion = coercion;
-    this.shortName = shortName;
     this.longName = longName;
     this.sourceMethod = sourceMethod;
-    this.description = description;
-    this.positionalIndex = positionalIndex;
   }
 
   public FieldSpec field() {
@@ -120,161 +71,28 @@ public final class Parameter {
     return coercion;
   }
 
-  static Parameter create(boolean anyMnemonics, TypeTool tool, List<Parameter> alreadyCreated, ExecutableElement sourceMethod, Integer positionalIndex, String[] description, ClassName optionType) {
+  static Parameter create(TypeTool tool, List<Parameter> alreadyCreated, ExecutableElement sourceMethod) {
     AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod);
-    if (positionalIndex != null) {
-      Optional<TypeElement> mapperClass = annotationUtil.get(net.javols.Param.class, "mappedBy");
-      Optional<TypeElement> collectorClass = annotationUtil.get(net.javols.Param.class, "collectedBy");
-      return createPositional(alreadyCreated, sourceMethod, positionalIndex, description, mapperClass, collectorClass, optionType, tool);
-    } else {
-      Optional<TypeElement> mapperClass = annotationUtil.get(Key.class, "mappedBy");
-      Optional<TypeElement> collectorClass = annotationUtil.get(Key.class, "collectedBy");
-      return createNonpositional(anyMnemonics, alreadyCreated, sourceMethod, description, mapperClass, collectorClass, optionType, tool);
-    }
-  }
-
-  private static Parameter createNonpositional(
-      boolean anyMnemonics,
-      List<Parameter> params,
-      ExecutableElement sourceMethod,
-      String[] description,
-      Optional<TypeElement> mapperClass,
-      Optional<TypeElement> collectorClass,
-      ClassName optionType,
-      TypeTool tool) {
-    String longName = longName(params, sourceMethod);
-    String shortName = shortName(params, sourceMethod);
-    if (shortName == null && longName == null) {
-      throw ValidationException.create(sourceMethod, "Define either long name or a short name");
-    }
-    Key parameter = sourceMethod.getAnnotation(Key.class);
-    checkShortName(sourceMethod, parameter.mnemonic());
-    checkName(sourceMethod, parameter.value());
-    ParamName name = findParamName(params, sourceMethod);
-    boolean flag = isInferredFlag(mapperClass, collectorClass, sourceMethod.getReturnType(), tool);
-    Coercion coercion = flag ?
-        flagCoercion(sourceMethod, name) :
-        CoercionProvider.nonFlagCoercion(sourceMethod, name, mapperClass, collectorClass, optionType, tool);
-    checkBundleKey(parameter.value(), params, sourceMethod);
-    List<String> names = names(longName, shortName);
-    return new Parameter(
-        shortName,
-        longName,
-        sourceMethod,
-        parameter.value(),
-        shape(flag, name, names, anyMnemonics),
-        names,
-        coercion,
-        Arrays.asList(description),
-        null);
-  }
-
-  private static Coercion flagCoercion(ExecutableElement sourceMethod, ParamName paramName) {
-    ParameterSpec constructorParam = ParameterSpec.builder(TypeName.get(sourceMethod.getReturnType()), paramName.snake()).build();
-    FieldSpec field = FieldSpec.builder(TypeName.get(sourceMethod.getReturnType()), paramName.snake()).build();
-    return new FlagCoercion(paramName, constructorParam, field);
+    Optional<TypeElement> mapperClass = annotationUtil.get(net.javols.Key.class, "mappedBy");
+    return createPositional(alreadyCreated, sourceMethod, mapperClass, tool);
   }
 
   private static Parameter createPositional(
       List<Parameter> alreadyCreated,
       ExecutableElement sourceMethod,
       int positionalIndex,
-      String[] description,
       Optional<TypeElement> mapperClass,
-      Optional<TypeElement> collectorClass,
-      ClassName optionType,
       TypeTool tool) {
-    net.javols.Param parameter = sourceMethod.getAnnotation(net.javols.Param.class);
+    Key parameter = sourceMethod.getAnnotation(Key.class);
     ParamName name = findParamName(alreadyCreated, sourceMethod);
-    Coercion coercion = CoercionProvider.nonFlagCoercion(sourceMethod, name, mapperClass, collectorClass, optionType, tool);
-    checkBundleKey(parameter.bundleKey(), alreadyCreated, sourceMethod);
+    Coercion coercion = CoercionProvider.nonFlagCoercion(sourceMethod, name, mapperClass, tool);
     return new Parameter(
         null,
         null,
         sourceMethod,
-        parameter.bundleKey(),
         name.snake().toLowerCase(Locale.US),
         Collections.emptyList(),
-        coercion,
-        Arrays.asList(description),
-        positionalIndex);
-  }
-
-  private static boolean isInferredFlag(
-      Optional<TypeElement> mapperClass,
-      Optional<TypeElement> collectorClass,
-      TypeMirror mirror,
-      TypeTool tool) {
-    if (mapperClass.isPresent() || collectorClass.isPresent()) {
-      // no inferring
-      return false;
-    }
-    return tool.isSameType(mirror, tool.getPrimitiveType(TypeKind.BOOLEAN)) ||
-        tool.isSameType(mirror, Boolean.class);
-  }
-
-  private static String shortName(List<Parameter> params, ExecutableElement sourceMethod) {
-    Key param = sourceMethod.getAnnotation(Key.class);
-    if (param == null) {
-      return null;
-    }
-    if (param.mnemonic() == ' ') {
-      return null;
-    }
-    String result = "-" + param.mnemonic();
-    for (Parameter p : params) {
-      if (result.equals(p.shortName)) {
-        throw ValidationException.create(sourceMethod, "Duplicate short name");
-      }
-    }
-    return result;
-  }
-
-  private static String longName(List<Parameter> params, ExecutableElement sourceMethod) {
-    Key param = sourceMethod.getAnnotation(Key.class);
-    if (param == null) {
-      return null;
-    }
-    if (Objects.toString(param.value(), "").isEmpty()) {
-      throw ValidationException.create(sourceMethod,
-          "The name may not be empty");
-    }
-    String longName = "--" + param.value();
-    for (Parameter p : params) {
-      if (p.longName != null && p.longName.equals(longName)) {
-        throw ValidationException.create(sourceMethod, "Duplicate long name");
-      }
-    }
-    return longName;
-  }
-
-  private static void checkShortName(ExecutableElement sourceMethod, char name) {
-    if (name == ' ') {
-      return;
-    }
-    checkName(sourceMethod, Character.toString(name));
-  }
-
-  private static void checkName(ExecutableElement sourceMethod, String name) {
-    if (Objects.toString(name, "").isEmpty()) {
-      throw ValidationException.create(sourceMethod,
-          "The name may not be empty");
-    }
-    if (name.charAt(0) == '-') {
-      throw ValidationException.create(sourceMethod,
-          "The name may not start with '-'");
-    }
-    for (int i = 0; i < name.length(); i++) {
-      char c = name.charAt(i);
-      if (isWhitespace(c)) {
-        throw ValidationException.create(sourceMethod,
-            "The name may not contain whitespace characters");
-      }
-      if (c == '=') {
-        throw ValidationException.create(sourceMethod,
-            "The name may not contain '='");
-      }
-    }
+        coercion);
   }
 
   public Optional<String> longName() {
