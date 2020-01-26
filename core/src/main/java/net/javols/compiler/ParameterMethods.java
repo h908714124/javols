@@ -15,15 +15,9 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.partitioningBy;
 
 class ParameterMethods {
-
-  private static final Comparator<ExecutableElement> POSITION_COMPARATOR = Comparator
-      .comparingInt(e -> e.getAnnotation(Param.class).value());
-
-  private final List<ExecutableElement> positional;
   private final List<ExecutableElement> options;
 
-  private ParameterMethods(List<ExecutableElement> positional, List<ExecutableElement> options) {
-    this.positional = positional;
+  private ParameterMethods(List<ExecutableElement> options) {
     this.options = options;
   }
 
