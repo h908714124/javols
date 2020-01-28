@@ -26,9 +26,6 @@ public final class Context {
 
   private final List<Parameter> options;
 
-  // whether "--help" is a special token
-  private final boolean helpParameterEnabled;
-
   // program name from attribute
   private final String programName;
 
@@ -40,7 +37,6 @@ public final class Context {
       List<Parameter> parameters,
       List<Parameter> positionalParams,
       List<Parameter> options,
-      boolean helpParameterEnabled,
       String programName,
       ClassName optionType) {
     this.sourceElement = sourceElement;
@@ -48,7 +44,6 @@ public final class Context {
     this.parameters = parameters;
     this.positionalParams = positionalParams;
     this.options = options;
-    this.helpParameterEnabled = helpParameterEnabled;
     this.programName = programName;
     this.optionType = optionType;
   }
@@ -61,14 +56,13 @@ public final class Context {
       List<Parameter> positionalParams,
       List<Parameter> options) {
     Data annotation = sourceElement.getAnnotation(Data.class);
-    boolean helpParameterEnabled = !annotation.helpDisabled();
 
     return new Context(
         sourceElement,
         generatedClass,
         parameters,
         positionalParams,
-        options, helpParameterEnabled,
+        options,
         programName(sourceElement),
         optionType);
   }
