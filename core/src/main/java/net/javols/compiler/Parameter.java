@@ -1,6 +1,5 @@
 package net.javols.compiler;
 
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
 import net.javols.Key;
 import net.javols.coerce.Coercion;
@@ -10,7 +9,6 @@ import net.javols.coerce.Skew;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,20 +32,16 @@ public final class Parameter {
     this.sourceMethod = sourceMethod;
   }
 
-  public FieldSpec field() {
-    return coercion.field();
-  }
-
   public Coercion coercion() {
     return coercion;
   }
 
-  static Parameter create(TypeTool tool, List<Parameter> alreadyCreated, ExecutableElement sourceMethod) {
+  static Parameter create(TypeTool tool, ExecutableElement sourceMethod) {
     AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod);
-    Optional<TypeElement> mapperClass = annotationUtil.get(net.javols.Key.class, "mappedBy");
+    Optional<TypeElement> mapperClass = annotationUtil.getMappedBy();
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion1 = CoercionProvider.nonFlagCoercion(sourceMethod, name, mapperClass, tool);
-    return new Parameter(parameter.value(), sourceMethod, coercion1);
+    Coercion coercion = CoercionProvider.nonFlagCoercion(sourceMethod, mapperClass, tool);
+    return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 
   public String key() {
@@ -62,24 +56,12 @@ public final class Parameter {
     return TypeName.get(sourceMethod.getReturnType());
   }
 
-  public String enumConstant() {
-    return paramName().enumConstant();
-  }
-
   public boolean isRequired() {
     return coercion.getSkew() == Skew.REQUIRED;
   }
 
   public boolean isOptional() {
     return coercion.getSkew() == Skew.OPTIONAL;
-  }
-
-  public ParamName paramName() {
-    return coercion.paramName();
-  }
-
-  ValidationException validationError(String message) {
-    return ValidationException.create(sourceMethod, message);
   }
 
   public Set<Modifier> getAccessModifiers() {

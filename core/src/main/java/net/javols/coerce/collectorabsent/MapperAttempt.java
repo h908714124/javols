@@ -28,21 +28,9 @@ class MapperAttempt {
     this.mapperClass = mapperClass;
   }
 
-  static CodeBlock autoCollectExpr(BasicInfo basicInfo, Skew skew) {
-    switch (skew) {
-      case OPTIONAL:
-        return CodeBlock.builder().build();
-      case REQUIRED:
-        return CodeBlock.of("orElseThrow(() -> new $T($S))",
-            "Missing: " + basicInfo.parameterName());
-      default:
-        throw new AssertionError("unknown skew: " + skew);
-    }
-  }
-
   Either<String, Coercion> findCoercion(BasicInfo basicInfo) {
     return new MapperClassValidator(basicInfo::failure, basicInfo.tool(), testType, mapperClass).checkReturnType()
         .map(Function.identity(), mapExpr ->
-            new Coercion(basicInfo, mapExpr, extractExpr, skew, constructorParam));
+            new Coercion(mapExpr, extractExpr, skew, constructorParam));
   }
 }

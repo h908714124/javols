@@ -2,7 +2,6 @@ package net.javols.coerce;
 
 import net.javols.coerce.collectorabsent.CollectorAbsentAuto;
 import net.javols.coerce.collectorabsent.CollectorAbsentExplicit;
-import net.javols.compiler.ParamName;
 import net.javols.compiler.TypeTool;
 
 import javax.lang.model.element.ExecutableElement;
@@ -15,7 +14,7 @@ public class CoercionProvider {
       ExecutableElement sourceMethod,
       Optional<TypeElement> mapperClass,
       TypeTool tool) {
-    BasicInfo basicInfo = BasicInfo.create(mapperClass, paramName, sourceMethod, tool);
+    BasicInfo basicInfo = BasicInfo.create(mapperClass, sourceMethod, tool);
     if (basicInfo.mapperClass().isPresent()) {
       return new CollectorAbsentExplicit(basicInfo, basicInfo.mapperClass().get()).findCoercion();
     } else {

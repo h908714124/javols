@@ -27,13 +27,10 @@ import static net.javols.compiler.TypeTool.asDeclared;
 
 class Resolver {
 
-  private final ExpectedType<?> expectedType;
-
   private final TypeTool tool;
 
   // visible for testing
-  Resolver(ExpectedType<?> expectedType, TypeTool tool) {
-    this.expectedType = expectedType;
+  Resolver(TypeTool tool) {
     this.tool = tool;
   }
 
@@ -59,9 +56,9 @@ class Resolver {
     return dogToAnimal(path).map(Function.identity(), DeclaredType::getTypeArguments);
   }
 
-  public <E> Either<TypecheckFailure, List<? extends TypeMirror>> typecheck(DeclaredType declared, Class<E> someInterface) {
-    if (!tool.isSameErasure(declared, someInterface)) {
-      return left(nonFatal("not a declared " + someInterface.getSimpleName()));
+  public Either<TypecheckFailure, List<? extends TypeMirror>> typecheck(DeclaredType declared) {
+    if (!tool.isSameErasure(declared, Function.class)) {
+      return left(nonFatal("not a declared " + Function.class));
     }
     if (tool.isRaw(declared)) {
       return left(fatal("raw type: " + declared));
@@ -125,7 +122,7 @@ class Resolver {
       for (Entry<String, TypeMirror> entry : solution.entries()) {
         Either<TypecheckFailure, TypeMirror> substituted = solutions.get(i).substitute(entry.getValue());
         if (substituted instanceof Left) {
-          return left(fatal(expectedType.boom(((Left<TypecheckFailure, TypeMirror>) substituted).value().getMessage())));
+          return left(fatal(ExpectedType.boom(((Left<TypecheckFailure, TypeMirror>) substituted).value().getMessage())));
         }
         merged.put(entry.getKey(), ((Right<TypecheckFailure, TypeMirror>) substituted).value());
       }

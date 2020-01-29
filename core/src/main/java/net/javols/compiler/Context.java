@@ -29,44 +29,8 @@ public final class Context {
     this.parameters = parameters;
   }
 
-  public ClassName optionParserType() {
-    return generatedClass.nestedClass("OptionParser");
-  }
-
-  public ClassName repeatableParamParserType() {
-    return generatedClass.nestedClass("ParamParser");
-  }
-
-  public ClassName flagParserType() {
-    return generatedClass.nestedClass("FlagParser");
-  }
-
-  public ClassName regularOptionParserType() {
-    return generatedClass.nestedClass("RegularOptionParser");
-  }
-
-  public ClassName regularParamParserType() {
-    return generatedClass.nestedClass("RegularParamParser");
-  }
-
-  public ClassName parserStateType() {
-    return generatedClass.nestedClass("ParserState");
-  }
-
   public ClassName implType() {
     return generatedClass.nestedClass(sourceElement.getSimpleName() + "Impl");
-  }
-
-  public ClassName parseResultType() {
-    return generatedClass.nestedClass("ParseResult");
-  }
-
-  public ClassName parsingSuccessType() {
-    return generatedClass.nestedClass("ParsingSuccess");
-  }
-
-  public ClassName parsingFailedType() {
-    return generatedClass.nestedClass("ParsingFailed");
   }
 
   public TypeName sourceType() {

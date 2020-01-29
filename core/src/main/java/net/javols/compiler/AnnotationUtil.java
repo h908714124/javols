@@ -28,20 +28,20 @@ class AnnotationUtil {
     this.sourceMethod = sourceMethod;
   }
 
-  Optional<TypeElement> get(Class<?> annotationClass, String attributeName) {
-    AnnotationMirror annotation = getAnnotationMirror(tool, sourceMethod, annotationClass);
+  Optional<TypeElement> getMappedBy() {
+    AnnotationMirror annotation = getAnnotationMirror(tool, sourceMethod);
     if (annotation == null) {
       // if the source method doesn't have this annotation
       return Optional.empty();
     }
-    AnnotationValue annotationValue = getAnnotationValue(annotation, attributeName);
+    AnnotationValue annotationValue = getAnnotationValue(annotation);
     if (annotationValue == null) {
       // if the default value is not overridden
       return Optional.empty();
     }
     TypeMirror typeMirror = annotationValue.accept(GET_TYPE, null);
     if (typeMirror == null) {
-      throw ValidationException.create(sourceMethod, String.format("Invalid value of attribute '%s'.", attributeName));
+      throw ValidationException.create(sourceMethod, String.format("Invalid value of attribute '%s'.", "mappedBy"));
     }
     if (tool.isObject(typeMirror)) {
       // if the default value is not overridden
@@ -50,20 +50,20 @@ class AnnotationUtil {
     return Optional.of(tool.asTypeElement(typeMirror));
   }
 
-  private static AnnotationMirror getAnnotationMirror(TypeTool tool, ExecutableElement sourceMethod, Class<?> annotationClass) {
+  private static AnnotationMirror getAnnotationMirror(TypeTool tool, ExecutableElement sourceMethod) {
     for (AnnotationMirror m : sourceMethod.getAnnotationMirrors()) {
-      if (tool.isSameType(m.getAnnotationType(), annotationClass)) {
+      if (tool.isSameType(m.getAnnotationType(), net.javols.Key.class)) {
         return m;
       }
     }
     return null;
   }
 
-  private static AnnotationValue getAnnotationValue(AnnotationMirror annotationMirror, String key) {
+  private static AnnotationValue getAnnotationValue(AnnotationMirror annotationMirror) {
     Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
       String simpleName = entry.getKey().getSimpleName().toString();
-      if (simpleName.equals(key)) {
+      if (simpleName.equals("mappedBy")) {
         return entry.getValue();
       }
     }

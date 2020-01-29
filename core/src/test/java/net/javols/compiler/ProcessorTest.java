@@ -39,7 +39,7 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("Duplicate long name");
+        .withErrorContaining("Duplicate key: x");
   }
 
   @Test

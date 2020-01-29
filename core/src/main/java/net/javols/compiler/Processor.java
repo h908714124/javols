@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,17 +62,17 @@ public final class Processor extends AbstractProcessor {
     try {
       getAnnotatedMethods(env, annotations).forEach(method -> {
         checkEnclosingElementIsAnnotated(method);
-        validateParameterMethods(method);
+        validateParameterMethod(method);
       });
     } catch (ValidationException e) {
       processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.about);
       return false;
     }
-    if (annotations.stream().noneMatch(a ->
-        a.getQualifiedName().contentEquals(Data.class.getCanonicalName()))) {
+    if (annotations.stream().map(TypeElement::getQualifiedName)
+        .noneMatch(name -> name.contentEquals(Data.class.getCanonicalName()))) {
       return false;
     }
-    getAnnotatedTypes(env).forEach(this::processSourceElements);
+    ElementFilter.typesIn(env.getElementsAnnotatedWith(Data.class)).forEach(this::processSourceElements);
     return false;
   }
 
@@ -85,9 +86,7 @@ public final class Processor extends AbstractProcessor {
         throw ValidationException.create(sourceElement, "Define at least one abstract method");
       }
 
-      Context context = new Context(sourceElement,
-          generatedClass,
-          parameters);
+      Context context = new Context(sourceElement, generatedClass, parameters);
       TypeSpec typeSpec = GeneratedClass.create(context).define();
       write(sourceElement, context.generatedClass(), typeSpec);
     } catch (ValidationException e) {
@@ -95,11 +94,6 @@ public final class Processor extends AbstractProcessor {
     } catch (AssertionError error) {
       handleUnknownError(sourceElement, error);
     }
-  }
-
-  private Set<TypeElement> getAnnotatedTypes(RoundEnvironment env) {
-    Set<? extends Element> annotated = env.getElementsAnnotatedWith(Data.class);
-    return ElementFilter.typesIn(annotated);
   }
 
   private void write(
@@ -132,10 +126,14 @@ public final class Processor extends AbstractProcessor {
     List<ExecutableElement> abstractMethods = methodsIn(sourceElement.getEnclosedElements()).stream()
         .filter(method -> method.getModifiers().contains(ABSTRACT))
         .collect(Collectors.toList());
-    abstractMethods.forEach(Processor::validateParameterMethods);
+    abstractMethods.forEach(Processor::validateParameterMethod);
     List<Parameter> result = new ArrayList<>();
+    Set<String> keys = new HashSet<>(abstractMethods.size());
     for (ExecutableElement method : abstractMethods) {
-      Parameter param = Parameter.create(tool, result, method);
+      Parameter param = Parameter.create(tool, method);
+      if (!keys.add(param.key())) {
+        throw ValidationException.create(method, "Duplicate key: " + param.key());
+      }
       result.add(param);
     }
     return result;
@@ -152,23 +150,27 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private static void validateParameterMethods(ExecutableElement method) {
+  private static boolean validateParameterMethod(ExecutableElement method) {
     if (!method.getModifiers().contains(ABSTRACT)) {
-      throw ValidationException.create(method,
-          "The method must be abstract.");
+      if (method.getAnnotation(Key.class) != null) {
+        throw ValidationException.create(method, "The method must be abstract.");
+      }
+      return false;
     }
     if (!method.getParameters().isEmpty()) {
-      throw ValidationException.create(method,
-          "The method may not have parameters.");
+      throw ValidationException.create(method, "The method may not have parameters.");
     }
     if (!method.getTypeParameters().isEmpty()) {
-      throw ValidationException.create(method,
-          "The method may not have type parameters.");
+      throw ValidationException.create(method, "The method may not have type parameters.");
     }
     if (!method.getThrownTypes().isEmpty()) {
-      throw ValidationException.create(method,
-          "The method may not declare any exceptions.");
+      throw ValidationException.create(method, "The method may not declare any exceptions.");
     }
+    if (method.getAnnotation(Key.class) == null) {
+      throw ValidationException.create(method, String.format("Annotate this method with @%s",
+          Key.class.getSimpleName()));
+    }
+    return true;
   }
 
   private List<ExecutableElement> getAnnotatedMethods(RoundEnvironment env, Set<? extends TypeElement> annotations) {

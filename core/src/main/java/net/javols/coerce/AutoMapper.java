@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static net.javols.compiler.Constants.STRING;
-
 class AutoMapper {
 
   private static final String NEW = "new";
@@ -65,7 +63,7 @@ class AutoMapper {
   }
 
   private static CodeBlock parseFileLambda() {
-    ParameterSpec s = ParameterSpec.builder(STRING, "s").build();
+    ParameterSpec s = ParameterSpec.builder(String.class, "s").build();
     ParameterSpec f = ParameterSpec.builder(File.class, "f").build();
     return CodeBlock.builder()
         .add("$N -> {\n", s).indent()
@@ -83,7 +81,7 @@ class AutoMapper {
   }
 
   private static CodeBlock parseCharacterLambda() {
-    ParameterSpec s = ParameterSpec.builder(STRING, "s").build();
+    ParameterSpec s = ParameterSpec.builder(String.class, "s").build();
     return CodeBlock.builder()
         .add("$N -> {\n", s).indent()
         .beginControlFlow("if ($N.length() != 1)", s)

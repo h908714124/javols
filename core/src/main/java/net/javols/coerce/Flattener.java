@@ -59,6 +59,6 @@ public class Flattener {
       mapping.put(p.toString(), m);
       result.add(m);
     }
-    return right(new FlattenerResult(result, new TypevarMapping(mapping, tool)));
+    return right(new FlattenerResult(result));
   }
 }

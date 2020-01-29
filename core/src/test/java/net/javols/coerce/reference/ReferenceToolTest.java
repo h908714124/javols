@@ -8,7 +8,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,8 +31,8 @@ class ReferenceToolTest {
       TypeMirror AA1 = mapperClass.getTypeParameters().get(0).asType();
       TypeMirror AA2 = mapperClass.getTypeParameters().get(1).asType();
       TypeTool tool = new TypeTool(elements, types);
-      ReferenceTool<Function> referenceTool = new ReferenceTool<>(ExpectedType.FUNCTION, s -> null, tool, mapperClass);
-      ReferencedType<Function> referencedType = referenceTool.getReferencedType();
+      ReferenceTool referenceTool = new ReferenceTool(s -> null, tool, mapperClass);
+      ReferencedType referencedType = referenceTool.getReferencedType();
       assertTrue(referencedType.isSupplier());
       assertEquals(2, referencedType.typeArguments().size());
       assertTrue(types.isSameType(AA1, referencedType.typeArguments().get(0)));

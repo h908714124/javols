@@ -4,7 +4,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 // mapper or collector
-public class ReferencedType<E> {
+public class ReferencedType {
 
   private final List<? extends TypeMirror> typeArguments;
   private final boolean supplier; // wrapped in Supplier?

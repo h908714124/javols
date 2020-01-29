@@ -8,10 +8,7 @@ import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
 import java.util.Map;
-
-import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.STATIC;
-import static net.javols.coerce.Util.addBreaks;
+import java.util.Optional;
 
 /**
  * Defines the inner class ParserState
@@ -47,7 +44,6 @@ final class ParserState {
       }
     }
 
-
     return MethodSpec.methodBuilder("build")
         .addParameter(m)
         .addStatement("return new $T($L)", context.implType(), args.build())
@@ -56,35 +52,16 @@ final class ParserState {
   }
 
   private CodeBlock extractExpression(Parameter param) {
-    return getStreamExpression(param)
-        .add(".values.stream()")
+    return CodeBlock.builder().add("$T.ofNullable($N.get($S))", Optional.class, m, param.key())
         .add(".map($L)", param.coercion().mapExpr())
-        .add(param.coercion().collectExpr())
+        .add(collectExpr(param))
         .build();
   }
 
-  static CodeBlock throwRepetitionErrorStatement(ParameterSpec optionParam) {
-    return CodeBlock.of(addBreaks("throw new $T($T.format($S, $N, $T.join($S, $N.names)))"),
-        RuntimeException.class, String.class,
-        "Option %s (%s) is not repeatable",
-        optionParam, String.class, ", ", optionParam);
-  }
-
-  private MethodSpec missingRequiredMethod() {
-    ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
-    return MethodSpec.methodBuilder("missingRequired")
-        .addParameter(key)
-        .addModifiers(PRIVATE, STATIC)
-        .returns(RuntimeException.class)
-        .addCode("return new $T($S + $N)", IllegalArgumentException.class, "Missing required: ", key)
-        .build();
-  }
-
-  /**
-   * @return An expression that extracts the value of the given param from the parser state.
-   * This expression will evaluate either to a {@link java.util.stream.Stream} or a {@link java.util.Optional}.
-   */
-  private CodeBlock.Builder getStreamExpression(Parameter param) {
-    return CodeBlock.builder().add("$T.ofNullable($N.get($T.$N))", m, param.key());
+  private CodeBlock collectExpr(Parameter param) {
+    if (!param.isRequired()) {
+      return CodeBlock.builder().build();
+    }
+    return CodeBlock.of(".orElseThrow(() -> missingRequired($S))", param.key());
   }
 }

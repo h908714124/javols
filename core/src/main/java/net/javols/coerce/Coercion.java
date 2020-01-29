@@ -13,8 +13,7 @@ public class Coercion {
 
   private final Skew skew;
 
-  public Coercion(BasicInfo basicInfo,
-                  CodeBlock mapExpr,
+  public Coercion(CodeBlock mapExpr,
                   CodeBlock extractExpr,
                   Skew skew,
                   ParameterSpec constructorParam) {
