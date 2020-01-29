@@ -3,9 +3,14 @@ package net.javols.compiler.view;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
+import java.util.Map;
+
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.STATIC;
 import static net.javols.coerce.Util.addBreaks;
 
 /**
@@ -13,11 +18,15 @@ import static net.javols.coerce.Util.addBreaks;
  */
 final class ParserState {
 
+  private static final ParameterizedTypeName STRING_MAP = ParameterizedTypeName.get(Map.class, String.class, String.class);
+
   private final Context context;
 
   private ParserState(Context context) {
     this.context = context;
   }
+
+  private final ParameterSpec m = ParameterSpec.builder(STRING_MAP, "m").build();
 
   static ParserState create(Context context) {
     return new ParserState(context);
@@ -37,7 +46,10 @@ final class ParserState {
         args.add(",\n");
       }
     }
+
+
     return MethodSpec.methodBuilder("build")
+        .addParameter(m)
         .addStatement("return new $T($L)", context.implType(), args.build())
         .returns(context.sourceType())
         .build();
@@ -58,18 +70,21 @@ final class ParserState {
         optionParam, String.class, ", ", optionParam);
   }
 
+  private MethodSpec missingRequiredMethod() {
+    ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
+    return MethodSpec.methodBuilder("missingRequired")
+        .addParameter(key)
+        .addModifiers(PRIVATE, STATIC)
+        .returns(RuntimeException.class)
+        .addCode("return new $T($S + $N)", IllegalArgumentException.class, "Missing required: ", key)
+        .build();
+  }
+
   /**
    * @return An expression that extracts the value of the given param from the parser state.
    * This expression will evaluate either to a {@link java.util.stream.Stream} or a {@link java.util.Optional}.
    */
   private CodeBlock.Builder getStreamExpression(Parameter param) {
-    if (param.isPositional()) {
-      return CodeBlock.builder().add(
-          "$N.get($L)", paramParsersField,
-          param.positionalIndex().orElseThrow(AssertionError::new));
-    }
-    return CodeBlock.builder().add(
-        "$N.get($T.$N)", optionParsersField,
-        context.optionType(), param.enumConstant());
+    return CodeBlock.builder().add("$T.ofNullable($N.get($T.$N))", m, param.key());
   }
 }

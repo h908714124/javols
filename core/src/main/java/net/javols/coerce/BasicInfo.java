@@ -1,10 +1,8 @@
 package net.javols.coerce;
 
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
-import net.javols.compiler.ParamName;
 import net.javols.compiler.TypeTool;
 import net.javols.compiler.ValidationException;
 
@@ -19,8 +17,6 @@ import java.util.Optional;
  */
 public class BasicInfo {
 
-  private final ParamName paramName;
-
   private final ExecutableElement sourceMethod;
 
   private final TypeTool tool;
@@ -29,22 +25,16 @@ public class BasicInfo {
   private final TypeElement mapperClass;
 
   private BasicInfo(
-      ParamName paramName,
       ExecutableElement sourceMethod,
       TypeTool tool,
       TypeElement mapperClass) {
-    this.paramName = paramName;
     this.sourceMethod = sourceMethod;
     this.tool = tool;
     this.mapperClass = mapperClass;
   }
 
-  static BasicInfo create(
-      Optional<TypeElement> mapperClass,
-      ParamName paramName,
-      ExecutableElement sourceMethod,
-      TypeTool tool) {
-    return new BasicInfo(paramName, sourceMethod, tool, mapperClass.orElse(null));
+  static BasicInfo create(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool) {
+    return new BasicInfo(sourceMethod, tool, mapperClass.orElse(null));
   }
 
   private boolean isEnumType(TypeMirror mirror) {
@@ -72,22 +62,12 @@ public class BasicInfo {
     return Optional.empty();
   }
 
-  public ParamName parameterName() {
-    return paramName;
-  }
-
   public ParameterSpec constructorParam(TypeMirror type) {
-    return ParameterSpec.builder(TypeName.get(type), paramName.camel()).build();
-
+    return ParameterSpec.builder(TypeName.get(type), sourceMethod.getSimpleName().toString()).build();
   }
 
-  // return type of the parameter method
-  public TypeMirror originalReturnType() {
+  public TypeMirror returnType() {
     return sourceMethod.getReturnType();
-  }
-
-  FieldSpec fieldSpec() {
-    return FieldSpec.builder(TypeName.get(originalReturnType()), paramName.camel()).build();
   }
 
   public ValidationException failure(String message) {

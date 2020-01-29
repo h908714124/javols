@@ -13,7 +13,6 @@ public class CoercionProvider {
 
   public static Coercion nonFlagCoercion(
       ExecutableElement sourceMethod,
-      ParamName paramName,
       Optional<TypeElement> mapperClass,
       TypeTool tool) {
     BasicInfo basicInfo = BasicInfo.create(mapperClass, paramName, sourceMethod, tool);

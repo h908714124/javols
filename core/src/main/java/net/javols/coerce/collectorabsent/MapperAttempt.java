@@ -43,6 +43,6 @@ class MapperAttempt {
   Either<String, Coercion> findCoercion(BasicInfo basicInfo) {
     return new MapperClassValidator(basicInfo::failure, basicInfo.tool(), testType, mapperClass).checkReturnType()
         .map(Function.identity(), mapExpr ->
-            new Coercion(basicInfo, mapExpr, autoCollectExpr(basicInfo, skew), extractExpr, skew, constructorParam));
+            new Coercion(basicInfo, mapExpr, extractExpr, skew, constructorParam));
   }
 }

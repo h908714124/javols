@@ -31,7 +31,7 @@ public class CollectorAbsentExplicit {
   }
 
   private List<MapperAttempt> getAttempts() {
-    TypeMirror returnType = basicInfo.originalReturnType();
+    TypeMirror returnType = basicInfo.returnType();
     Optional<Optionalish> opt = Optionalish.unwrap(returnType, tool());
     List<MapperAttempt> attempts = new ArrayList<>();
     opt.ifPresent(optional -> {

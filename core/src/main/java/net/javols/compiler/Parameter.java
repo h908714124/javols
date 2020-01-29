@@ -19,31 +19,18 @@ import static net.javols.compiler.Constants.NONPRIVATE_ACCESS_MODIFIERS;
 
 public final class Parameter {
 
-  private final String longName;
+  private final String key;
 
   private final ExecutableElement sourceMethod;
 
   private final Coercion coercion;
 
-  private static ParamName findParamName(
-      List<Parameter> alreadyCreated,
-      ExecutableElement sourceMethod) {
-    String methodName = sourceMethod.getSimpleName().toString();
-    ParamName result = ParamName.create(methodName);
-    for (Parameter param : alreadyCreated) {
-      if (param.paramName().enumConstant().equals(result.enumConstant())) {
-        return result.append(Integer.toString(alreadyCreated.size()));
-      }
-    }
-    return result;
-  }
-
   private Parameter(
-      String longName,
+      String key,
       ExecutableElement sourceMethod,
       Coercion coercion) {
     this.coercion = coercion;
-    this.longName = longName;
+    this.key = key;
     this.sourceMethod = sourceMethod;
   }
 
@@ -59,13 +46,12 @@ public final class Parameter {
     AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod);
     Optional<TypeElement> mapperClass = annotationUtil.get(net.javols.Key.class, "mappedBy");
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    ParamName name = findParamName(alreadyCreated, sourceMethod);
     Coercion coercion1 = CoercionProvider.nonFlagCoercion(sourceMethod, name, mapperClass, tool);
     return new Parameter(parameter.value(), sourceMethod, coercion1);
   }
 
-  public Optional<String> longName() {
-    return Optional.ofNullable(longName);
+  public String key() {
+    return key;
   }
 
   public String methodName() {
