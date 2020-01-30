@@ -16,19 +16,6 @@ import static java.util.Collections.singletonList;
 class ProcessorTest {
 
   @Test
-  void emptyName() {
-    JavaFileObject javaFile = fromSource(
-        "@Data",
-        "abstract class Arguments {",
-        "  @Key(\"\") abstract String a();",
-        "}");
-    assertAbout(javaSources()).that(singletonList(javaFile))
-        .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("The name may not be empty");
-  }
-
-  @Test
   void duplicateName() {
     JavaFileObject javaFile = fromSource(
         "@Data",
@@ -144,7 +131,7 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("Unknown parameter type: java.util.Date. Try defining a custom mapper.");
+        .withErrorContaining("Unknown key type: java.util.Date. Try defining a custom mapper.");
   }
 
   @Test
@@ -158,20 +145,6 @@ class ProcessorTest {
         .processedWith(new Processor())
         .failsToCompile()
         .withErrorContaining("Use a class, not an interface");
-  }
-
-  @Test
-  void whitespaceInName() {
-    JavaFileObject javaFile = fromSource(
-        "@Data",
-        "abstract class Arguments {",
-        "  @Key(\"a \")",
-        "  abstract String a();",
-        "}");
-    assertAbout(javaSources()).that(singletonList(javaFile))
-        .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("may not contain whitespace");
   }
 
   @Test
@@ -225,7 +198,8 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .compilesWithoutError();
+        .failsToCompile()
+        .withErrorContaining("Unknown key type: boolean");
   }
 
   @Test
@@ -283,7 +257,7 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("The class must have the @Command annotation");
+        .withErrorContaining("The class must have the @Data annotation");
   }
 
   @Test
@@ -360,7 +334,7 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("Unknown parameter type: test.Arguments.Foo. Try defining a custom mapper.");
+        .withErrorContaining("Unknown key type: test.Arguments.Foo. Try defining a custom mapper.");
   }
 
 

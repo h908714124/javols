@@ -37,7 +37,7 @@ public class CollectorAbsentAuto {
   private Coercion createCoercion(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
     return basicInfo.findAutoMapper(testType)
         .map(mapExpr -> new Coercion(mapExpr, extractExpr, skew, constructorParam))
-        .orElseThrow(() -> basicInfo.failure(String.format("Unknown parameter type: %s. Try defining a custom mapper.",
+        .orElseThrow(() -> basicInfo.failure(String.format("Unknown key type: %s. Try defining a custom mapper.",
             basicInfo.returnType())));
   }
 

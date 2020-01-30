@@ -167,7 +167,7 @@ public final class Processor extends AbstractProcessor {
       throw ValidationException.create(method, "The method may not declare any exceptions.");
     }
     if (method.getAnnotation(Key.class) == null) {
-      throw ValidationException.create(method, String.format("Annotate this method with @%s",
+      throw ValidationException.create(method, String.format("missing @%s annotation",
           Key.class.getSimpleName()));
     }
     return true;
