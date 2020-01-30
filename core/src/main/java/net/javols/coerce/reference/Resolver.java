@@ -1,5 +1,6 @@
 package net.javols.coerce.reference;
 
+import net.javols.coerce.Util;
 import net.javols.coerce.either.Either;
 import net.javols.coerce.either.Left;
 import net.javols.coerce.either.Right;
@@ -122,7 +123,7 @@ class Resolver {
       for (Entry<String, TypeMirror> entry : solution.entries()) {
         Either<TypecheckFailure, TypeMirror> substituted = solutions.get(i).substitute(entry.getValue());
         if (substituted instanceof Left) {
-          return left(fatal(ExpectedType.boom(((Left<TypecheckFailure, TypeMirror>) substituted).value().getMessage())));
+          return left(fatal(Util.mapperProblem(((Left<TypecheckFailure, TypeMirror>) substituted).value().getMessage())));
         }
         merged.put(entry.getKey(), ((Right<TypecheckFailure, TypeMirror>) substituted).value());
       }

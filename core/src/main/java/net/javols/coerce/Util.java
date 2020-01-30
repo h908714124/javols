@@ -27,4 +27,8 @@ public final class Util {
       throw ValidationException.create(typeElement, "The class may not be abstract.");
     }
   }
+
+  public static String mapperProblem(String message) {
+    return String.format("There is a problem with the mapper class: %s.", message);
+  }
 }

@@ -1,5 +1,6 @@
 package net.javols.coerce.reference;
 
+import net.javols.coerce.Util;
 import net.javols.compiler.TypeTool;
 import net.javols.compiler.ValidationException;
 
@@ -50,6 +51,6 @@ public class ReferenceTool {
   }
 
   private ValidationException boom(String message) {
-    return errorHandler.apply(ExpectedType.boom(message));
+    return errorHandler.apply(Util.mapperProblem(message));
   }
 }

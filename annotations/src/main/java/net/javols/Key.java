@@ -21,10 +21,9 @@ public @interface Key {
    */
   String value();
 
-
   /**
    * Declares a custom mapper for this key.
-   * This is either a
+   * This must either be a
    * {@link java.util.function.Function Function}
    * accepting strings,
    * or a {@link java.util.function.Supplier Supplier} thereof.

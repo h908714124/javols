@@ -43,7 +43,7 @@ public class CollectorAbsentExplicit {
     });
     ParameterSpec param = basicInfo.constructorParam(returnType);
     // exact match (-> required)
-    attempts.add(attempt(tool().box(returnType), param, REQUIRED));
+    attempts.add(exactMatchAttempt(tool().box(returnType), param));
     return attempts;
   }
 
@@ -67,7 +67,7 @@ public class CollectorAbsentExplicit {
     return new MapperAttempt(expectedReturnType, extractExpr, constructorParam, skew, mapperClass);
   }
 
-  private MapperAttempt attempt(TypeMirror expectedReturnType, ParameterSpec constructorParam, Skew skew) {
-    return new MapperAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, skew, mapperClass);
+  private MapperAttempt exactMatchAttempt(TypeMirror expectedReturnType, ParameterSpec constructorParam) {
+    return new MapperAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, Skew.REQUIRED, mapperClass);
   }
 }
