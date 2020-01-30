@@ -58,7 +58,7 @@ class Resolver {
 
   public Either<TypecheckFailure, List<? extends TypeMirror>> typecheck(DeclaredType declared) {
     if (!tool.isSameErasure(declared, Function.class)) {
-      return left(nonFatal("not a declared " + Function.class));
+      return left(nonFatal("expected " + Function.class.getCanonicalName() + " but found " + declared));
     }
     if (tool.isRaw(declared)) {
       return left(fatal("raw type: " + declared));

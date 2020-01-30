@@ -38,7 +38,7 @@ public final class GeneratedClass {
   public TypeSpec define() {
     TypeSpec.Builder spec = TypeSpec.classBuilder(context.generatedClass());
 
-    spec.addMethod(buildMethod())
+    spec.addMethod(parseMethod())
         .addMethod(missingRequiredMethod());
 
     spec.addType(Impl.define(context));
@@ -47,7 +47,7 @@ public final class GeneratedClass {
         .addJavadoc(javadoc()).build();
   }
 
-  private MethodSpec buildMethod() {
+  private MethodSpec parseMethod() {
 
     CodeBlock.Builder args = CodeBlock.builder().add("\n");
     for (int j = 0; j < context.parameters().size(); j++) {
@@ -58,10 +58,12 @@ public final class GeneratedClass {
       }
     }
 
-    return MethodSpec.methodBuilder("build")
+    return MethodSpec.methodBuilder("parse")
         .addParameter(f)
         .addStatement("return new $T($L)", context.implType(), args.build())
         .returns(context.sourceType())
+        .addModifiers(STATIC)
+        .addModifiers(context.getAccessModifiers())
         .build();
   }
 
@@ -85,7 +87,7 @@ public final class GeneratedClass {
         .addParameter(key)
         .addModifiers(PRIVATE, STATIC)
         .returns(IllegalArgumentException.class)
-        .addStatement("return new $T($S + $N)", IllegalArgumentException.class, "Missing required: ", key)
+        .addStatement("return new $T($S + $N + $S)", IllegalArgumentException.class, "Missing required key: <", key, ">")
         .build();
   }
 

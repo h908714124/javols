@@ -27,8 +27,4 @@ public final class Util {
       throw ValidationException.create(typeElement, "The class may not be abstract.");
     }
   }
-
-  public static String addBreaks(String code) {
-    return code.replace(" ", "$W");
-  }
 }

@@ -42,7 +42,7 @@ public class ReferenceTool {
   private ReferencedType handleSupplier(List<? extends TypeMirror> typeArguments) {
     TypeMirror supplied = typeArguments.get(0);
     if (supplied.getKind() != TypeKind.DECLARED) {
-      throw boom("not a " + ExpectedType.simpleName() + " or Supplier<" + ExpectedType.simpleName() + ">");
+      throw boom("not a " + Function.class.getSimpleName() + " or Supplier<" + Function.class.getSimpleName() + ">");
     }
     List<? extends TypeMirror> typeParameters = resolver.typecheck(asDeclared(supplied))
         .orElseThrow(f -> boom(f.getMessage()));

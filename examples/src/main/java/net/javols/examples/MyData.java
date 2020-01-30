@@ -1,5 +1,6 @@
 package net.javols.examples;
 
+import net.javols.Data;
 import net.javols.Key;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Data
 abstract class MyData {
 
   @Key("apiKey")
