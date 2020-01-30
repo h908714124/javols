@@ -39,7 +39,8 @@ public final class GeneratedClass {
     TypeSpec.Builder spec = TypeSpec.classBuilder(context.generatedClass());
 
     spec.addMethod(parseMethod())
-        .addMethod(missingRequiredMethod());
+        .addMethod(missingRequiredMethod())
+        .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).build());
 
     spec.addType(Impl.define(context));
 
