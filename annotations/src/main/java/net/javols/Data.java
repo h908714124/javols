@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
  * that contains key methods.
  * Each of its abstract methods must be annotated with
  * {@link Key}.
+ *
+ * @see <a href="https://github.com/h908714124/javols">javols</a>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

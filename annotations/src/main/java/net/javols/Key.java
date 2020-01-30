@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
  * Marker annotation for key methods.
  * The annotated method must be abstract
  * and have an empty argument list.
+ *
+ * @see <a href="https://github.com/h908714124/javols">javols</a>
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
