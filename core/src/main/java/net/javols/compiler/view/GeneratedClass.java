@@ -8,6 +8,7 @@ import com.squareup.javapoet.TypeSpec;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -23,9 +24,11 @@ public final class GeneratedClass {
 
   private final Context context;
 
-  private static final ParameterizedTypeName F = ParameterizedTypeName.get(Function.class, String.class, String.class);
+  private static final ParameterizedTypeName S2S = ParameterizedTypeName.get(Function.class, String.class, String.class);
+  private static final ParameterizedTypeName S2E = ParameterizedTypeName.get(Function.class, String.class, RuntimeException.class);
 
-  private final ParameterSpec f = ParameterSpec.builder(F, "f").build();
+  private final ParameterSpec f = ParameterSpec.builder(S2S, "f").build();
+  private final ParameterSpec errMissing = ParameterSpec.builder(S2E, "errMissing").build();
 
   private GeneratedClass(Context context) {
     this.context = context;
@@ -39,13 +42,25 @@ public final class GeneratedClass {
     TypeSpec.Builder spec = TypeSpec.classBuilder(context.generatedClass());
 
     spec.addMethod(parseMethod())
-        .addMethod(missingRequiredMethod())
+        .addMethod(parseMethodOverload())
         .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).build());
 
     spec.addType(Impl.define(context));
 
     return spec.addModifiers(context.getAccessModifiers())
         .addJavadoc(javadoc()).build();
+  }
+
+  private MethodSpec parseMethodOverload() {
+    ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
+    return MethodSpec.methodBuilder("parse")
+        .addParameter(f)
+        .addStatement("return parse($N, $N -> new $T($S + $N + $S))", f, key, IllegalArgumentException.class,
+            "Missing required key: <", key, ">")
+        .returns(context.sourceType())
+        .addModifiers(STATIC)
+        .addModifiers(context.getAccessModifiers())
+        .build();
   }
 
   private MethodSpec parseMethod() {
@@ -60,7 +75,7 @@ public final class GeneratedClass {
     }
 
     return MethodSpec.methodBuilder("parse")
-        .addParameter(f)
+        .addParameters(Arrays.asList(f, errMissing))
         .addStatement("return new $T($L)", context.implType(), args.build())
         .returns(context.sourceType())
         .addModifiers(STATIC)
@@ -79,17 +94,7 @@ public final class GeneratedClass {
     if (!param.isRequired()) {
       return CodeBlock.builder().build();
     }
-    return CodeBlock.of(".orElseThrow(() -> missingRequired($S))", param.key());
-  }
-
-  private MethodSpec missingRequiredMethod() {
-    ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
-    return MethodSpec.methodBuilder("missingRequired")
-        .addParameter(key)
-        .addModifiers(PRIVATE, STATIC)
-        .returns(IllegalArgumentException.class)
-        .addStatement("return new $T($S + $N + $S)", IllegalArgumentException.class, "Missing required key: <", key, ">")
-        .build();
+    return CodeBlock.of(".orElseThrow(() -> $N.apply($S))", errMissing, param.key());
   }
 
   private CodeBlock javadoc() {
