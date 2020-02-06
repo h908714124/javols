@@ -85,9 +85,9 @@ Parameter type                      | Skew
 `Optional<X>`                       | *optional*
 <code>Optional{Int&#124;Long&#124;Double}</code> | *optional*
 
-where `X` is one of the "auto types" (basically primitives excluding `boolean`, plus `File` and `Path`).
+where `X` is one of the "auto types" (basically primitives excluding `boolean`, plus `String`, `File` and `Path`).
 
-If an explicit mapper is defined, then these rules apply:
+With an explicit mapper, any type can be mapped (not just the auto types), and these rules apply:
 
 Mapper return type      | Parameter type              | Skew
 ----------------------- | --------------------------- | ------------
@@ -102,3 +102,4 @@ Mapper return type      | Parameter type              | Skew
 ````sh
 ./gradlew core:clean core:test examples:clean examples:test
 ````
+
