@@ -87,7 +87,7 @@ where `X` is one of the "auto types" (basically primitives excluding `boolean`, 
 
 With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
 that accepts `String`),
-any type can be mapped (not just the auto types), and these rules apply:
+any type `R` can be mapped (not just the auto types), and these rules apply:
 
 Mapper return type      | Key type                    | Skew
 ----------------------- | --------------------------- | ------------
