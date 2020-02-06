@@ -77,7 +77,7 @@ assertEquals(26, user.age());
 Whether a key is considered *required* or *optional* is determined by its type.
 These are the rules if no mapper is defined:
 
-Parameter type                      | Skew
+Key type                            | Skew
 ----------------------------------- | --------------------------------
 `X` (exact match)                   | *required*
 `Optional<X>`                       | *optional*
@@ -89,7 +89,7 @@ With an explicit mapper (which is just a [Function](https://docs.oracle.com/java
 that accepts `String`),
 any type can be mapped (not just the auto types), and these rules apply:
 
-Mapper return type      | Parameter type              | Skew
+Mapper return type      | Key type                    | Skew
 ----------------------- | --------------------------- | ------------
 `R`                     | `R` (exact match)           | *required*
 `R`                     | `Optional<R>`               | *optional*
