@@ -35,14 +35,16 @@ This will generate the following parser:
 @Generated
 class User_Parser {
 
-  static User parse(Function<String, String> f, Function<String, RuntimeException> errMissing) {
-    return new UserImpl(
-        Optional.ofNullable(f.apply("name")).map(Function.identity()).orElseThrow(() -> errMissing.apply("name")),
-        Optional.ofNullable(f.apply("age")).map(new User.NumberMapper()).orElseThrow(() -> errMissing.apply("age")));
-  }
-
   static User parse(Function<String, String> f) {
     return parse(f, key -> new IllegalArgumentException("Missing required key: <" + key + ">"));
+  }
+
+  static User parse(Function<String, String> f, Function<String, RuntimeException> errMissing) {
+    return new UserImpl(
+        Optional.ofNullable(f.apply("name")).map(Function.identity()).orElseThrow(() -> 
+                errMissing.apply("name")),
+        Optional.ofNullable(f.apply("age")).map(new User.NumberMapper()).orElseThrow(() -> 
+                errMissing.apply("age")));
   }
 
   private static class UserImpl extends User {
@@ -54,13 +56,8 @@ class User_Parser {
       this.age = age;
     }
 
-    String name() {
-      return name;
-    }
-
-    int age() {
-      return age;
-    }
+    String name() { return name; }
+    int age() { return age; }
   }
 }
 ````
