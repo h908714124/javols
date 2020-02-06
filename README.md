@@ -7,8 +7,76 @@ structures, such as
 [Map](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) and
 [Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html).
 
+### Example
+
+````java
+@Data
+abstract class User {
+
+  @Key("name")
+  abstract String name();
+
+  @Key(value = "age", mappedBy = NumberMapper.class)
+  abstract int age();
+
+  static class NumberMapper implements Function<String, Integer> {
+    public Integer apply(String s) {
+      int result = Integer.parseInt(s);
+      if (result < 0) throw new IllegalArgumentException("Invalid: " + s);
+      return result;
+    }
+  }
+}
+````
+
+This will generate the following parser:
+
+````java
+class User_Parser {
+
+  static User parse(Function<String, String> f, Function<String, RuntimeException> errMissing) {
+    return new UserImpl(
+        Optional.ofNullable(f.apply("name")).map(Function.identity()).orElseThrow(() -> errMissing.apply("name")),
+        Optional.ofNullable(f.apply("age")).map(new User.NumberMapper()).orElseThrow(() -> errMissing.apply("age")));
+  }
+
+  static User parse(Function<String, String> f) {
+    return parse(f, key -> new IllegalArgumentException("Missing required key: <" + key + ">"));
+  }
+
+  private static class UserImpl extends User {
+    String name;
+    int age;
+
+    UserImpl(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    String name() {
+      return name;
+    }
+
+    int age() {
+      return age;
+    }
+  }
+}
+````
+
+which can be used like this:
+
+````java
+Map<String, String> m = Map.of("name", "Hauke", "age", "26");
+User user = User_Parser.parse(m::get);
+
+assertEquals("Hauke", user.name());
+assertEquals(26, user.age());
+````
+
 ### Skew rules
 
+Whether or not a key is considered optional is determined by its type.
 These are the rules if no mapper is defined:
 
 Parameter type                      | Skew
