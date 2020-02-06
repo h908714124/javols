@@ -103,3 +103,6 @@ Mapper return type      | Key type                    | Skew
 ./gradlew core:clean core:test examples:clean examples:test
 ````
 
+### Example project
+
+It's used in [mex-kit](https://github.com/h908714124/mex-kit/blob/master/src/main/java/com/example/Http.java).
