@@ -2,7 +2,7 @@
 [![annotations](https://maven-badges.herokuapp.com/maven-central/com.github.h908714124/javols-annotations/badge.svg?color=red&style=plastic&subject=javols-annotations)](https://maven-badges.herokuapp.com/maven-central/com.github.h908714124/javols-annotations)
 
 This annotation processor lets you define
-mappers and required keys on key-value
+mappers and required keys on `String`-based key-value
 structures, such as
 [Map](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) and
 [Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html).
@@ -85,7 +85,9 @@ Parameter type                      | Skew
 
 where `X` is one of the "auto types" (basically primitives excluding `boolean`, plus `String`, `File` and `Path`).
 
-With an explicit mapper, any type can be mapped (not just the auto types), and these rules apply:
+With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html))
+that accepts `String`,
+any type can be mapped (not just the auto types), and these rules apply:
 
 Mapper return type      | Parameter type              | Skew
 ----------------------- | --------------------------- | ------------
