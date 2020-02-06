@@ -74,7 +74,7 @@ assertEquals(26, user.age());
 
 ### Skew rules
 
-Whether or not a key is considered optional is determined by its type.
+Whether a key is considered *required* or *optional* is determined by its type.
 These are the rules if no mapper is defined:
 
 Parameter type                      | Skew
