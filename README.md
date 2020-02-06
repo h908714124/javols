@@ -32,6 +32,7 @@ abstract class User {
 This will generate the following parser:
 
 ````java
+@Generated
 class User_Parser {
 
   static User parse(Function<String, String> f, Function<String, RuntimeException> errMissing) {
