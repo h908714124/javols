@@ -83,7 +83,10 @@ Key type                            | Skew
 `Optional<X>`                       | *optional*
 <code>Optional{Int&#124;Long&#124;Double}</code> | *optional*
 
-where `X` is one of the "auto types" (basically primitives excluding `boolean`, plus `String`, `File` and `Path`).
+where `X` is one of the 
+[auto types](https://github.com/h908714124/jbock-docgen/blob/master/src/main/java/com/example/hello/JbockAutoTypes.java)
+which comprise the primitives and their boxed versions, minus `boolean`, plus `String`, `Path` 
+and some other common types that have a standard string representation.
 
 With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
 that accepts `String`),
