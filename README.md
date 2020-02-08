@@ -65,10 +65,10 @@ class User_Parser {
 which can be used like this:
 
 ````java
-Map<String, String> m = Map.of("name", "Hauke", "age", "26");
+Map<String, String> m = Map.of("name", "Heiko", "age", "26");
 User user = User_Parser.parse(m::get);
 
-assertEquals("Hauke", user.name());
+assertEquals("Heiko", user.name());
 assertEquals(26, user.age());
 ````
 
@@ -85,8 +85,8 @@ Key type                            | Skew
 
 where `X` is one of the 
 [auto types](https://github.com/h908714124/jbock-docgen/blob/master/src/main/java/com/example/hello/JbockAutoTypes.java)
-which comprise the primitives and their boxed versions, minus `boolean`, plus `String`, `Path` 
-and some other common types that have a standard string representation.
+which comprise all enums as well as primitives and their boxed versions, minus `boolean`, plus `String`, `Path` 
+and some other common types that have "canonical" mappers.
 
 With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
 that accepts `String`),
@@ -108,4 +108,4 @@ Mapper return type      | Key type                    | Skew
 
 ### Example project
 
-It's used in [mex-kit](https://github.com/h908714124/mex-kit/blob/master/src/main/java/com/example/Http.java).
+It's used in [mex-kit.](https://github.com/h908714124/mex-kit/blob/master/src/main/java/com/example/Http.java)
