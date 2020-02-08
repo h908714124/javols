@@ -90,7 +90,7 @@ and some other common types that have "canonical" mappers.
 
 With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
 that accepts `String`),
-any type `R` can be mapped (not just the auto types), and these rules apply:
+any declared type `R` can be mapped (not just the auto types), and these rules apply:
 
 Mapper return type      | Key type                    | Skew
 ----------------------- | --------------------------- | ------------
