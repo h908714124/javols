@@ -1,4 +1,4 @@
-package net.javols.coerce.collectorabsent;
+package net.javols.coerce.matching;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;

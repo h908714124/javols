@@ -1,7 +1,7 @@
 package net.javols.coerce;
 
-import net.javols.coerce.collectorabsent.CollectorAbsentAuto;
-import net.javols.coerce.collectorabsent.CollectorAbsentExplicit;
+import net.javols.coerce.matching.AutoMatcher;
+import net.javols.coerce.matching.MapperMatcher;
 import net.javols.compiler.TypeTool;
 
 import javax.lang.model.element.ExecutableElement;
@@ -16,9 +16,9 @@ public class CoercionProvider {
       TypeTool tool) {
     BasicInfo basicInfo = BasicInfo.create(mapperClass, sourceMethod, tool);
     if (basicInfo.mapperClass().isPresent()) {
-      return new CollectorAbsentExplicit(basicInfo, basicInfo.mapperClass().get()).findCoercion();
+      return new MapperMatcher(basicInfo, basicInfo.mapperClass().get()).findCoercion();
     } else {
-      return new CollectorAbsentAuto(basicInfo).findCoercion();
+      return new AutoMatcher(basicInfo).findCoercion();
     }
   }
 }

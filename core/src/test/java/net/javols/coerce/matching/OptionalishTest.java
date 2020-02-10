@@ -1,4 +1,4 @@
-package net.javols.coerce.collectorabsent;
+package net.javols.coerce.matching;
 
 import net.javols.compiler.EvaluatingProcessor;
 import net.javols.compiler.TypeTool;

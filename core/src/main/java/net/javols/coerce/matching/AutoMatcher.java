@@ -1,4 +1,4 @@
-package net.javols.coerce.collectorabsent;
+package net.javols.coerce.matching;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
@@ -12,11 +12,11 @@ import java.util.Optional;
 
 import static net.javols.coerce.Skew.OPTIONAL;
 
-public class CollectorAbsentAuto {
+public class AutoMatcher {
 
   private final BasicInfo basicInfo;
 
-  public CollectorAbsentAuto(BasicInfo basicInfo) {
+  public AutoMatcher(BasicInfo basicInfo) {
     this.basicInfo = basicInfo;
   }
 

@@ -1,4 +1,4 @@
-package net.javols.coerce.collectorabsent;
+package net.javols.coerce.matching;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
@@ -20,20 +20,20 @@ import static net.javols.coerce.Skew.OPTIONAL;
 import static net.javols.coerce.Skew.REQUIRED;
 import static net.javols.coerce.either.Either.left;
 
-public class CollectorAbsentExplicit {
+public class MapperMatcher {
 
   private final TypeElement mapperClass;
   private final BasicInfo basicInfo;
 
-  public CollectorAbsentExplicit(BasicInfo basicInfo, TypeElement mapperClass) {
+  public MapperMatcher(BasicInfo basicInfo, TypeElement mapperClass) {
     this.mapperClass = mapperClass;
     this.basicInfo = basicInfo;
   }
 
-  private List<MapperAttempt> getAttempts() {
+  private List<MatchingAttempt> getAttempts() {
     TypeMirror returnType = basicInfo.returnType();
     Optional<Optionalish> opt = Optionalish.unwrap(returnType, tool());
-    List<MapperAttempt> attempts = new ArrayList<>();
+    List<MatchingAttempt> attempts = new ArrayList<>();
     opt.ifPresent(optional -> {
       ParameterSpec param = basicInfo.constructorParam(optional.liftedType());
       // optional match
@@ -48,9 +48,9 @@ public class CollectorAbsentExplicit {
   }
 
   public Coercion findCoercion() {
-    List<MapperAttempt> attempts = getAttempts();
+    List<MatchingAttempt> attempts = getAttempts();
     Either<String, Coercion> either = left("");
-    for (MapperAttempt attempt : attempts) {
+    for (MatchingAttempt attempt : attempts) {
       either = attempt.findCoercion(basicInfo);
       if (either instanceof Right) {
         return ((Right<String, Coercion>) either).value();
@@ -63,11 +63,11 @@ public class CollectorAbsentExplicit {
     return basicInfo.tool();
   }
 
-  private MapperAttempt attempt(TypeMirror expectedReturnType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
-    return new MapperAttempt(expectedReturnType, extractExpr, constructorParam, skew, mapperClass);
+  private MatchingAttempt attempt(TypeMirror expectedReturnType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
+    return new MatchingAttempt(expectedReturnType, extractExpr, constructorParam, skew, mapperClass);
   }
 
-  private MapperAttempt exactMatchAttempt(TypeMirror expectedReturnType, ParameterSpec constructorParam) {
-    return new MapperAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, Skew.REQUIRED, mapperClass);
+  private MatchingAttempt exactMatchAttempt(TypeMirror expectedReturnType, ParameterSpec constructorParam) {
+    return new MatchingAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, Skew.REQUIRED, mapperClass);
   }
 }
