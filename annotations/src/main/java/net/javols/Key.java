@@ -27,10 +27,10 @@ public @interface Key {
    * Declares a custom mapper for this key.
    * This must either be a
    * {@link java.util.function.Function Function}
-   * accepting strings,
-   * or a {@link java.util.function.Supplier Supplier} thereof.
+   * accepting strings, or in general, the output type of the
+   * {@link Data#transform() transform function}.
    *
-   * @return an optional mapper class
+   * @return an optional mapper function, or function-supplier
    */
   Class<?> mappedBy() default Object.class;
 }
