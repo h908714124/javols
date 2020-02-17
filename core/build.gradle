@@ -87,7 +87,7 @@ publishing {
             pom {
                 name = 'javols'
                 packaging = 'jar'
-                description = 'The javols command line parser'
+                description = 'The javols annotation processor'
                 url = 'https://github.com/h908714124/javols'
 
                 licenses {
