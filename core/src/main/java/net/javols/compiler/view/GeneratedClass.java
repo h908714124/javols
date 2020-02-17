@@ -14,6 +14,7 @@ import net.javols.compiler.Parameter;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
@@ -73,40 +74,64 @@ public final class GeneratedClass {
     TypeName transformType = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(context.transform().inputType()), TypeName.get(context.transform().outputType()));
     ParameterSpec transform = ParameterSpec.builder(transformType, "t").build();
+    ParameterSpec key = ParameterSpec.builder(transformType, "key").build();
+    ParameterSpec e = eParam();
+    ParameterSpec a = aParam();
     MethodSpec.Builder spec = MethodSpec.methodBuilder("parse");
     spec.addException(X);
     spec.addTypeVariable(X);
     spec.addStatement("$T $N = $L", transformType, transform, context.transform().transformExpr());
-    CodeBlock.Builder args = CodeBlock.builder().add("\n");
-    for (int j = 0; j < context.parameters().size(); j++) {
-      Parameter param = context.parameters().get(j);
-      args.add(extractExpression(param, transform));
-      if (j < context.parameters().size() - 1) {
-        args.add(",\n");
-      }
+    spec.addStatement("$T $N = $N -> $T.ofNullable($N.apply($N))", a.type, a, key, Optional.class, f, key);
+    if (context.parameters().stream().anyMatch(Parameter::isRequired)) {
+      spec.addStatement("$T $N = $N -> () -> $N.apply($N)", e.type, e, key, errMissing, key);
     }
 
     return spec.addParameters(Arrays.asList(f, errMissing))
-        .addStatement("return new $T($L)", context.implType(), args.build())
+        .addStatement("return new $T($L)", context.implType(), getBuildExpr(transform, e, a))
         .returns(context.sourceType())
         .addModifiers(STATIC)
         .addModifiers(context.getAccessModifiers())
         .build();
   }
 
-  private CodeBlock extractExpression(Parameter param, ParameterSpec transform) {
-    return CodeBlock.builder().add("$T.ofNullable($N.apply($S))", Optional.class, f, param.key())
+  private CodeBlock getBuildExpr(ParameterSpec transform, ParameterSpec e, ParameterSpec a) {
+    CodeBlock.Builder args = CodeBlock.builder().add("\n");
+    for (int j = 0; j < context.parameters().size(); j++) {
+      Parameter param = context.parameters().get(j);
+      args.add(extractExpression(param, transform, a, e));
+      if (j < context.parameters().size() - 1) {
+        args.add(",\n");
+      }
+    }
+    return args.build();
+  }
+
+  private ParameterSpec eParam() {
+    TypeName eType = ParameterizedTypeName.get(ClassName.get(Function.class),
+        TypeName.get(String.class), ParameterizedTypeName.get(ClassName.get(Supplier.class), X));
+    return ParameterSpec.builder(eType, "e").build();
+  }
+
+  private ParameterSpec aParam() {
+    TypeName aType = ParameterizedTypeName.get(ClassName.get(Function.class),
+        TypeName.get(String.class), ParameterizedTypeName.get(ClassName.get(Optional.class),
+            ClassName.get(context.transform().inputType())));
+    return ParameterSpec.builder(aType, "a").build();
+  }
+
+  private CodeBlock extractExpression(Parameter param, ParameterSpec transform, ParameterSpec a, ParameterSpec e) {
+    return CodeBlock.builder().add("$N.apply($S)", a, param.key())
         .add(".map($N)", transform)
         .add(".map($L)", param.coercion().mapExpr())
-        .add(collectExpr(param))
+        .add(collectExpr(param, e))
         .build();
   }
 
-  private CodeBlock collectExpr(Parameter param) {
+  private CodeBlock collectExpr(Parameter param, ParameterSpec e) {
     if (!param.isRequired()) {
       return CodeBlock.builder().build();
     }
-    return CodeBlock.of(".orElseThrow(() -> $N.apply($S))", errMissing, param.key());
+    return CodeBlock.of(".orElseThrow($N.apply($S))", e, param.key());
   }
 
   private CodeBlock javadoc() {
