@@ -7,6 +7,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
@@ -26,8 +27,10 @@ public final class GeneratedClass {
 
   private final Context context;
 
+  private static final TypeVariableName X = TypeVariableName.get("X").withBounds(Throwable.class);
+
   private static final ParameterizedTypeName S2S = ParameterizedTypeName.get(Function.class, String.class, String.class);
-  private static final ParameterizedTypeName S2E = ParameterizedTypeName.get(Function.class, String.class, RuntimeException.class);
+  private static final ParameterizedTypeName S2E = ParameterizedTypeName.get(ClassName.get(Function.class), ClassName.get(String.class), X);
 
   private final ParameterSpec f = ParameterSpec.builder(S2S, "f").build();
   private final ParameterSpec errMissing = ParameterSpec.builder(S2E, "errMissing").build();
@@ -43,8 +46,8 @@ public final class GeneratedClass {
   public TypeSpec define() {
     TypeSpec.Builder spec = TypeSpec.classBuilder(context.generatedClass());
 
-    spec.addMethod(parseMethod())
-        .addMethod(parseMethodOverload())
+    spec.addMethod(parseMethodOverload())
+        .addMethod(parseMethod())
         .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).build());
 
     spec.addType(Impl.define(context));
@@ -71,6 +74,8 @@ public final class GeneratedClass {
         TypeName.get(context.transform().inputType()), TypeName.get(context.transform().outputType()));
     ParameterSpec transform = ParameterSpec.builder(transformType, "t").build();
     MethodSpec.Builder spec = MethodSpec.methodBuilder("parse");
+    spec.addException(X);
+    spec.addTypeVariable(X);
     spec.addStatement("$T $N = $L", transformType, transform, context.transform().transformExpr());
     CodeBlock.Builder args = CodeBlock.builder().add("\n");
     for (int j = 0; j < context.parameters().size(); j++) {
