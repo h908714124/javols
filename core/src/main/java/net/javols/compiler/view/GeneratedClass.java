@@ -1,9 +1,11 @@
 package net.javols.compiler.view;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
@@ -65,17 +67,21 @@ public final class GeneratedClass {
 
   private MethodSpec parseMethod() {
 
+    TypeName transformType = ParameterizedTypeName.get(ClassName.get(Function.class),
+        TypeName.get(context.transform().inputType()), TypeName.get(context.transform().outputType()));
+    ParameterSpec transform = ParameterSpec.builder(transformType, "t").build();
+    MethodSpec.Builder spec = MethodSpec.methodBuilder("parse");
+    spec.addStatement("$T $N = $L", transformType, transform, context.transform().transformExpr());
     CodeBlock.Builder args = CodeBlock.builder().add("\n");
     for (int j = 0; j < context.parameters().size(); j++) {
       Parameter param = context.parameters().get(j);
-      args.add(extractExpression(param));
+      args.add(extractExpression(param, transform));
       if (j < context.parameters().size() - 1) {
         args.add(",\n");
       }
     }
 
-    return MethodSpec.methodBuilder("parse")
-        .addParameters(Arrays.asList(f, errMissing))
+    return spec.addParameters(Arrays.asList(f, errMissing))
         .addStatement("return new $T($L)", context.implType(), args.build())
         .returns(context.sourceType())
         .addModifiers(STATIC)
@@ -83,8 +89,9 @@ public final class GeneratedClass {
         .build();
   }
 
-  private CodeBlock extractExpression(Parameter param) {
+  private CodeBlock extractExpression(Parameter param, ParameterSpec transform) {
     return CodeBlock.builder().add("$T.ofNullable($N.apply($S))", Optional.class, f, param.key())
+        .add(".map($N)", transform)
         .add(".map($L)", param.coercion().mapExpr())
         .add(collectExpr(param))
         .build();

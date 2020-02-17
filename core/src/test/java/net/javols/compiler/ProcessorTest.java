@@ -19,7 +19,7 @@ class ProcessorTest {
   void duplicateName() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "  @Key(\"x\") abstract String a();",
         "  @Key(\"x\") abstract String b();",
         "}");
@@ -33,7 +33,7 @@ class ProcessorTest {
   void unknownReturnType() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract StringBuilder a();",
@@ -48,7 +48,7 @@ class ProcessorTest {
   void declaredException() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract String a() throws IllegalArgumentException;",
@@ -63,7 +63,7 @@ class ProcessorTest {
   void classNotAbstract() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  String a();",
@@ -78,7 +78,7 @@ class ProcessorTest {
   void rawOptional() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract Optional a();",
@@ -93,7 +93,7 @@ class ProcessorTest {
   void parameterizedSet() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract java.util.Set<String> a();",
@@ -108,7 +108,7 @@ class ProcessorTest {
   void integerArray() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract int[] a();",
@@ -123,7 +123,7 @@ class ProcessorTest {
   void utilDate() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract java.util.Date a();",
@@ -151,7 +151,7 @@ class ProcessorTest {
   void noMethods() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
@@ -163,7 +163,7 @@ class ProcessorTest {
   void oneOptionalIntNotOptional() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract OptionalInt b();",
@@ -177,7 +177,7 @@ class ProcessorTest {
   void oneOptionalInt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract OptionalInt b();",
@@ -191,7 +191,7 @@ class ProcessorTest {
   void simpleFlag() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract boolean x();",
@@ -206,7 +206,7 @@ class ProcessorTest {
   void simpleInt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract int aRequiredInt();",
@@ -219,11 +219,11 @@ class ProcessorTest {
   @Test
   void extendsNotAllowed() {
     JavaFileObject javaFile = fromSource(
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Data",
-        "  static abstract class Foo extends Arguments {",
-        "    abstract String a();",
+        "  static abstract class Foo extends MyData {",
+        "    @Key(\"x\") abstract String a();",
         "  }",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -235,11 +235,11 @@ class ProcessorTest {
   @Test
   void implementsNotAllowed() {
     JavaFileObject javaFile = fromSource(
-        "interface Arguments {",
+        "interface MyData {",
         "",
         "  @Data",
-        "  abstract class Foo implements Arguments {",
-        "    abstract String a();",
+        "  abstract class Foo implements MyData {",
+        "    @Key(\"x\") abstract String a();",
         "  }",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -251,7 +251,7 @@ class ProcessorTest {
   @Test
   void missingDataAnnotation() {
     JavaFileObject javaFile = fromSource(
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "  @Key(\"a\") abstract String a();",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -264,7 +264,7 @@ class ProcessorTest {
   void abstractMethodHasParameter() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "  @Key(\"x\") abstract String a(int b, int c);",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -277,7 +277,7 @@ class ProcessorTest {
   void typeParameter() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "  @Key(\"x\") abstract <E> String a();",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -290,7 +290,7 @@ class ProcessorTest {
   void missingAnnotation() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  abstract List<String> a();",
         "}");
@@ -304,7 +304,7 @@ class ProcessorTest {
   void innerEnum() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract Foo foo();",
@@ -322,7 +322,7 @@ class ProcessorTest {
   void privateEnum() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(\"x\")",
         "  abstract Foo foo();",
@@ -334,7 +334,7 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("Unknown key type: test.Arguments.Foo. Try defining a custom mapper.");
+        .withErrorContaining("Unknown key type: test.MyData.Foo. Try defining a custom mapper.");
   }
 
 
@@ -356,7 +356,7 @@ class ProcessorTest {
 
   static JavaFileObject fromSource(String... lines) {
     List<String> sourceLines = withImports(lines);
-    return forSourceLines("test.Arguments", sourceLines);
+    return forSourceLines("test.MyData", sourceLines);
   }
 
   static List<String> withImports(String... lines) {

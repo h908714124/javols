@@ -3,6 +3,7 @@ package net.javols.compiler;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.AnnotationValueVisitor;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -13,7 +14,9 @@ import java.util.Optional;
 class AnnotationUtil {
 
   private final TypeTool tool;
-  private final ExecutableElement sourceMethod;
+  private final String attributeName;
+  private final Element annotatedElement;
+  private final Class<?> annotationType;
 
   private static final AnnotationValueVisitor<TypeMirror, Void> GET_TYPE = new SimpleAnnotationValueVisitor8<TypeMirror, Void>() {
 
@@ -23,13 +26,15 @@ class AnnotationUtil {
     }
   };
 
-  AnnotationUtil(TypeTool tool, ExecutableElement sourceMethod) {
+  AnnotationUtil(TypeTool tool, Element annotatedElement, Class<?> annotationType, String attributeName) {
     this.tool = tool;
-    this.sourceMethod = sourceMethod;
+    this.annotatedElement = annotatedElement;
+    this.annotationType = annotationType;
+    this.attributeName = attributeName;
   }
 
-  Optional<TypeElement> getMappedBy() {
-    AnnotationMirror annotation = getAnnotationMirror(tool, sourceMethod);
+  Optional<TypeElement> getAttributeValue() {
+    AnnotationMirror annotation = getAnnotationMirror();
     if (annotation == null) {
       // if the source method doesn't have this annotation
       return Optional.empty();
@@ -41,7 +46,7 @@ class AnnotationUtil {
     }
     TypeMirror typeMirror = annotationValue.accept(GET_TYPE, null);
     if (typeMirror == null) {
-      throw ValidationException.create(sourceMethod, String.format("Invalid value of attribute '%s'.", "mappedBy"));
+      throw ValidationException.create(annotatedElement, String.format("Invalid value of attribute '%s'.", "mappedBy"));
     }
     if (tool.isObject(typeMirror)) {
       // if the default value is not overridden
@@ -50,20 +55,20 @@ class AnnotationUtil {
     return Optional.of(tool.asTypeElement(typeMirror));
   }
 
-  private static AnnotationMirror getAnnotationMirror(TypeTool tool, ExecutableElement sourceMethod) {
-    for (AnnotationMirror m : sourceMethod.getAnnotationMirrors()) {
-      if (tool.isSameType(m.getAnnotationType(), net.javols.Key.class)) {
+  private AnnotationMirror getAnnotationMirror() {
+    for (AnnotationMirror m : annotatedElement.getAnnotationMirrors()) {
+      if (tool.isSameType(m.getAnnotationType(), annotationType)) {
         return m;
       }
     }
     return null;
   }
 
-  private static AnnotationValue getAnnotationValue(AnnotationMirror annotationMirror) {
+  private AnnotationValue getAnnotationValue(AnnotationMirror annotationMirror) {
     Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
       String simpleName = entry.getKey().getSimpleName().toString();
-      if (simpleName.equals("mappedBy")) {
+      if (simpleName.equals(attributeName)) {
         return entry.getValue();
       }
     }

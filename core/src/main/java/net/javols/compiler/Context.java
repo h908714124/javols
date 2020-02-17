@@ -2,10 +2,12 @@ package net.javols.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import net.javols.coerce.TransformInfo;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
+import java.util.Optional;
 
 import static net.javols.compiler.Constants.NONPRIVATE_ACCESS_MODIFIERS;
 
@@ -20,13 +22,18 @@ public final class Context {
   // the abstract methods in the annotated class
   private final List<Parameter> parameters;
 
+  // from annotation
+  private final TransformInfo transform;
+
   Context(
       TypeElement sourceElement,
       ClassName generatedClass,
-      List<Parameter> parameters) {
+      List<Parameter> parameters,
+      TransformInfo transform) {
     this.sourceElement = sourceElement;
     this.generatedClass = generatedClass;
     this.parameters = parameters;
+    this.transform = transform;
   }
 
   public ClassName implType() {
@@ -49,5 +56,9 @@ public final class Context {
 
   public List<Parameter> parameters() {
     return parameters;
+  }
+
+  public TransformInfo transform() {
+    return transform;
   }
 }

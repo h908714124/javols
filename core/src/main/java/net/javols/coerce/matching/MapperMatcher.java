@@ -64,10 +64,10 @@ public class MapperMatcher {
   }
 
   private MatchingAttempt attempt(TypeMirror expectedReturnType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
-    return new MatchingAttempt(expectedReturnType, extractExpr, constructorParam, skew, mapperClass);
+    return new MatchingAttempt(expectedReturnType, extractExpr, constructorParam, skew, basicInfo.transformInfo().outputType(), mapperClass);
   }
 
   private MatchingAttempt exactMatchAttempt(TypeMirror expectedReturnType, ParameterSpec constructorParam) {
-    return new MatchingAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, Skew.REQUIRED, mapperClass);
+    return new MatchingAttempt(expectedReturnType, CodeBlock.of("$N", constructorParam), constructorParam, Skew.REQUIRED, basicInfo.transformInfo().outputType(), mapperClass);
   }
 }

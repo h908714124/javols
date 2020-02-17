@@ -5,6 +5,7 @@ import net.javols.Key;
 import net.javols.coerce.Coercion;
 import net.javols.coerce.CoercionProvider;
 import net.javols.coerce.Skew;
+import net.javols.coerce.TransformInfo;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -36,11 +37,11 @@ public final class Parameter {
     return coercion;
   }
 
-  static Parameter create(TypeTool tool, ExecutableElement sourceMethod) {
-    AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod);
-    Optional<TypeElement> mapperClass = annotationUtil.getMappedBy();
+  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TransformInfo transformInfo) {
+    AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod, Key.class, "mappedBy");
+    Optional<TypeElement> mapperClass = annotationUtil.getAttributeValue();
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion = CoercionProvider.nonFlagCoercion(sourceMethod, mapperClass, tool);
+    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, mapperClass, transformInfo, tool);
     return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 

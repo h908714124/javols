@@ -25,9 +25,9 @@ public @interface Key {
 
   /**
    * Declares a custom mapper for this key.
-   * This must either be a
+   * This must be a
    * {@link java.util.function.Function Function}
-   * accepting strings, or in general, the output type of the
+   * accepting strings, or the output type of the
    * {@link Data#transform() transform function}.
    *
    * @return an optional mapper function, or function-supplier

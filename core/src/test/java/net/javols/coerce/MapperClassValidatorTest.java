@@ -32,7 +32,7 @@ class MapperClassValidatorTest {
       TypeElement mapperClass = elements.getTypeElement("Mapper");
       TypeTool tool = new TypeTool(elements, types);
       DeclaredType expectedReturnType = TypeExpr.prepare(elements, types).parse("java.util.List<java.lang.Integer>");
-      Either<String, CodeBlock> either = new MapperClassValidator(s -> null, tool, expectedReturnType, mapperClass)
+      Either<String, CodeBlock> either = new MapperClassValidator(s -> null, tool, tool.asType(String.class), expectedReturnType, mapperClass)
           .checkReturnType();
       assertTrue(either instanceof Right);
       CodeBlock mapExpr = ((Right<String, CodeBlock>) either).value();

@@ -17,19 +17,21 @@ class MatchingAttempt {
   private final CodeBlock extractExpr;
   private final ParameterSpec constructorParam;
   private final Skew skew;
+  private final TypeMirror expectedInputType;
   private final TypeMirror testType;
   private final TypeElement mapperClass;
 
-  MatchingAttempt(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew, TypeElement mapperClass) {
+  MatchingAttempt(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew, TypeMirror expectedInputType, TypeElement mapperClass) {
     this.testType = testType;
     this.extractExpr = extractExpr;
     this.constructorParam = constructorParam;
     this.skew = skew;
+    this.expectedInputType = expectedInputType;
     this.mapperClass = mapperClass;
   }
 
   Either<String, Coercion> findCoercion(BasicInfo basicInfo) {
-    return new MapperClassValidator(basicInfo::failure, basicInfo.tool(), testType, mapperClass).checkReturnType()
+    return new MapperClassValidator(basicInfo::failure, basicInfo.tool(), expectedInputType, testType, mapperClass).checkReturnType()
         .map(Function.identity(), mapExpr ->
             new Coercion(mapExpr, extractExpr, skew, constructorParam));
   }

@@ -24,14 +24,17 @@ public class BasicInfo {
   // nullable
   private final TypeElement mapperClass;
 
-  private BasicInfo(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool) {
+  private final TransformInfo transformInfo;
+
+  private BasicInfo(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool, TransformInfo transformInfo) {
     this.sourceMethod = sourceMethod;
     this.tool = tool;
     this.mapperClass = mapperClass.orElse(null);
+    this.transformInfo = transformInfo;
   }
 
-  static BasicInfo create(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool) {
-    return new BasicInfo(mapperClass, sourceMethod, tool);
+  static BasicInfo create(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool, TransformInfo transformInfo) {
+    return new BasicInfo(mapperClass, sourceMethod, tool, transformInfo);
   }
 
   private boolean isEnumType(TypeMirror mirror) {
@@ -77,5 +80,9 @@ public class BasicInfo {
 
   Optional<TypeElement> mapperClass() {
     return Optional.ofNullable(mapperClass);
+  }
+
+  public TransformInfo transformInfo() {
+    return transformInfo;
   }
 }

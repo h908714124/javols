@@ -10,14 +10,18 @@ import java.util.Optional;
 
 public class CoercionProvider {
 
-  public static Coercion nonFlagCoercion(
+  public static Coercion getCoercion(
       ExecutableElement sourceMethod,
       Optional<TypeElement> mapperClass,
+      TransformInfo transformInfo,
       TypeTool tool) {
-    BasicInfo basicInfo = BasicInfo.create(mapperClass, sourceMethod, tool);
+    BasicInfo basicInfo = BasicInfo.create(mapperClass, sourceMethod, tool, transformInfo);
     if (basicInfo.mapperClass().isPresent()) {
       return new MapperMatcher(basicInfo, basicInfo.mapperClass().get()).findCoercion();
     } else {
+      if (!tool.isSameType(basicInfo.transformInfo().outputType(), String.class)) {
+        throw basicInfo.failure("Define a custom mapper for this key.");
+      }
       return new AutoMatcher(basicInfo).findCoercion();
     }
   }
