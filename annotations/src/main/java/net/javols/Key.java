@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * The annotated method must be abstract
  * and have an empty argument list.
  *
- * @see <a href="https://github.com/h908714124/javols">javols</a>
+ * @see <a href="https://github.com/h908714124/javols">github</a>
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
