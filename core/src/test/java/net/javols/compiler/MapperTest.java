@@ -15,7 +15,7 @@ class MapperTest {
   void validArrayMapper() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = ArrayMapper.class)",
         "  abstract Optional<int[]> foo();",
@@ -35,7 +35,7 @@ class MapperTest {
   void validMapperWithTypeParameter() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -55,7 +55,7 @@ class MapperTest {
   void validMapperWithTypeParameters() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -75,7 +75,7 @@ class MapperTest {
   void invalidMapperTypeParameterWithBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -96,7 +96,7 @@ class MapperTest {
   void validMapperTypeParameterWithBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -116,7 +116,7 @@ class MapperTest {
   void validMapperTypeParameterSupplierWithBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -136,7 +136,7 @@ class MapperTest {
   void invalidMapperTypeParameterSupplierWithBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = IdentityMapper.class)",
         "  abstract String string();",
@@ -158,7 +158,7 @@ class MapperTest {
   void invalidFlagMapper() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = FlagMapper.class)",
         "  abstract Boolean flag();",
@@ -178,7 +178,7 @@ class MapperTest {
   void invalidBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = BoundMapper.class)",
         "  abstract String a();",
@@ -198,7 +198,7 @@ class MapperTest {
   void invalidBoundsLong() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -219,7 +219,7 @@ class MapperTest {
   void invalidBoundsLong2() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -244,7 +244,7 @@ class MapperTest {
   void validBoundsLong3() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Number number();",
@@ -268,7 +268,7 @@ class MapperTest {
   void validBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = BoundMapper.class)",
         "  abstract String a();",
@@ -291,7 +291,7 @@ class MapperTest {
   void mapperInvalidPrivateConstructor() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -315,7 +315,7 @@ class MapperTest {
   void mapperInvalidNoDefaultConstructor() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -339,7 +339,7 @@ class MapperTest {
   void mapperInvalidConstructorException() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -363,7 +363,7 @@ class MapperTest {
   void mapperInvalidNonstaticInnerClass() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -384,7 +384,7 @@ class MapperTest {
   void mapperInvalidNotStringFunction() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -405,7 +405,7 @@ class MapperTest {
   void mapperInvalidReturnsString() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -426,7 +426,7 @@ class MapperTest {
   void mapperValidTypevars() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Supplier<String> string();",
@@ -446,7 +446,7 @@ class MapperTest {
   void mapperValidNestedTypevars() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Supplier<Optional<String>> string();",
@@ -467,7 +467,7 @@ class MapperTest {
   void mapperValidExtendsFunction() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -489,7 +489,7 @@ class MapperTest {
   void mapperInvalidStringFunction() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -513,7 +513,7 @@ class MapperTest {
   void mapperValidComplicatedTree() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -545,7 +545,7 @@ class MapperTest {
   void testMapperTypeSudokuInvalid() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract List<List<Integer>> number();",
@@ -564,7 +564,7 @@ class MapperTest {
   void testMapperTypeSudokuLooksValidButIsnt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract List<List<Integer>> number();",
@@ -583,7 +583,7 @@ class MapperTest {
   void testSudokuHard() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract List<List<List<List<List<List<List<Set<Set<Set<Set<Set<Set<Collection<Integer>>>>>>>>>>>>>> numbers();",
@@ -609,7 +609,7 @@ class MapperTest {
   void testListSudoku() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract List<Integer> number();",
@@ -630,7 +630,7 @@ class MapperTest {
   void mapperInvalidComplicatedTree() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -663,7 +663,7 @@ class MapperTest {
   void mapperInvalidNotFunction() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -684,7 +684,7 @@ class MapperTest {
   void mapperInvalidFunctionReturnType() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -707,7 +707,7 @@ class MapperTest {
   void mapperInvalidBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -730,7 +730,7 @@ class MapperTest {
   void mapperValidBounds() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -754,7 +754,7 @@ class MapperTest {
   void mapperInvalidRawFunctionSupplier() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -775,7 +775,7 @@ class MapperTest {
   void mapperInvalidRawSupplier() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -796,7 +796,7 @@ class MapperTest {
   void mapperInvalidRawFunction() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -817,7 +817,7 @@ class MapperTest {
   void mapperInvalidSupplyingTypevar() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Integer number();",
@@ -838,7 +838,7 @@ class MapperTest {
   void mapperValidByte() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Byte number();",
@@ -858,7 +858,7 @@ class MapperTest {
   void mapperValidBytePrimitive() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract byte number();",
@@ -878,7 +878,7 @@ class MapperTest {
   void mapperValidOptionalInteger() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Optional<Integer> number();",
@@ -898,7 +898,7 @@ class MapperTest {
   void mapperValidOptionalStringTypevar() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Optional<String> number();",
@@ -918,7 +918,7 @@ class MapperTest {
   void mapperValidStringOptionalStringTypevar() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Optional<String> number();",
@@ -938,7 +938,7 @@ class MapperTest {
   void mapperValidStringListTypevar() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract List<String> number();",
@@ -958,7 +958,7 @@ class MapperTest {
   void implicitMapperOptionalInt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract OptionalInt b();",
@@ -978,7 +978,7 @@ class MapperTest {
   void mapperOptionalInt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract OptionalInt b();",
@@ -998,7 +998,7 @@ class MapperTest {
   void mapperOptionalInteger() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract Optional<Integer> b();",
@@ -1018,7 +1018,7 @@ class MapperTest {
   void oneOptionalInt() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Mapper.class)",
         "  abstract OptionalInt b();",
@@ -1038,7 +1038,7 @@ class MapperTest {
   void mapperHasTypeargsImpossibleFromString() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\", mappedBy = Identity.class)",
         "  abstract List<Integer> ints();",
@@ -1060,7 +1060,7 @@ class MapperTest {
   void freeTypeVariableInMapper() {
     JavaFileObject javaFile = fromSource(
         "@Data",
-        "abstract class Arguments {",
+        "abstract class MyData {",
         "",
         "  @Key(value = \"x\",",
         "          mappedBy = MyMapper.class)",

@@ -36,11 +36,11 @@ public final class Parameter {
     return coercion;
   }
 
-  static Parameter create(TypeTool tool, ExecutableElement sourceMethod) {
-    AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod);
-    Optional<TypeElement> mapperClass = annotationUtil.getMappedBy();
+  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, Optional<TypeElement> transform) {
+    AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod, Key.class, "mappedBy");
+    Optional<TypeElement> mapperClass = annotationUtil.getAttributeValue();
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion = CoercionProvider.nonFlagCoercion(sourceMethod, mapperClass, tool);
+    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, mapperClass, transform, tool);
     return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 

@@ -11,6 +11,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Coercion input: Information about a single parameter (option or param).
@@ -24,14 +25,20 @@ public class BasicInfo {
   // nullable
   private final TypeElement mapperClass;
 
-  private BasicInfo(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool) {
+  private final TransformInfo transformInfo;
+
+  private BasicInfo(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool, TransformInfo transformInfo) {
     this.sourceMethod = sourceMethod;
     this.tool = tool;
     this.mapperClass = mapperClass.orElse(null);
+    this.transformInfo = transformInfo;
   }
 
-  static BasicInfo create(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool) {
-    return new BasicInfo(mapperClass, sourceMethod, tool);
+  static BasicInfo create(Optional<TypeElement> mapperClass, ExecutableElement sourceMethod, TypeTool tool, Optional<TypeElement> transform) {
+    TransformInfo transformInfo = transform.map(t -> TransformInfo.checkTransform(m -> ValidationException.create(sourceMethod, m), tool, t))
+        .orElseGet(() -> new TransformInfo(tool.asType(String.class), tool.asType(String.class),
+            CodeBlock.of("$T.identity()", Function.class)));
+    return new BasicInfo(mapperClass, sourceMethod, tool, transformInfo);
   }
 
   private boolean isEnumType(TypeMirror mirror) {
@@ -77,5 +84,9 @@ public class BasicInfo {
 
   Optional<TypeElement> mapperClass() {
     return Optional.ofNullable(mapperClass);
+  }
+
+  public TransformInfo transformInfo() {
+    return transformInfo;
   }
 }
