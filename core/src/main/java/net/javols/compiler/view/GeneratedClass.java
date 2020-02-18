@@ -29,19 +29,22 @@ public final class GeneratedClass {
   private final Context context;
 
   private static final TypeVariableName X = TypeVariableName.get("X").withBounds(Throwable.class);
+  private static final ParameterizedTypeName S2X = ParameterizedTypeName.get(ClassName.get(Function.class),
+      TypeName.get(String.class), X);
 
-  private static final ParameterizedTypeName S2S = ParameterizedTypeName.get(Function.class, String.class, String.class);
-  private static final ParameterizedTypeName S2E = ParameterizedTypeName.get(ClassName.get(Function.class), ClassName.get(String.class), X);
+  private final ParameterSpec f;
+  private final ParameterSpec errMissing = ParameterSpec.builder(S2X, "errMissing").build();
 
-  private final ParameterSpec f = ParameterSpec.builder(S2S, "f").build();
-  private final ParameterSpec errMissing = ParameterSpec.builder(S2E, "errMissing").build();
-
-  private GeneratedClass(Context context) {
+  private GeneratedClass(Context context, ParameterSpec f) {
     this.context = context;
+    this.f = f;
   }
 
   public static GeneratedClass create(Context context) {
-    return new GeneratedClass(context);
+    ParameterizedTypeName fType = ParameterizedTypeName.get(ClassName.get(Function.class),
+        TypeName.get(String.class), TypeName.get(context.transform().inputType()));
+    ParameterSpec f = ParameterSpec.builder(fType, "f").build();
+    return new GeneratedClass(context, f);
   }
 
   public TypeSpec define() {

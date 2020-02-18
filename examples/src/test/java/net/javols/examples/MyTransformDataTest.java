@@ -2,6 +2,7 @@ package net.javols.examples;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,12 +12,9 @@ class MyTransformDataTest {
 
   @Test
   void testMyData() {
-    Map<String, String> m = new HashMap<>();
-    m.put("auto", "-1");
-    m.put("mapper", "-1");
-    m.put("proxy", "proxy.intra.net:1234");
+    Map<String, BigInteger> m = new HashMap<>();
+    m.put("mapper", BigInteger.ONE.negate());
     MyTransformData data = MyTransformData_Parser.parse(m::get);
-    assertEquals(-1, data.auto());
-    assertEquals(0, data.mapper());
+    assertEquals(-1, data.mapper());
   }
 }
