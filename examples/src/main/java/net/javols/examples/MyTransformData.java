@@ -3,27 +3,27 @@ package net.javols.examples;
 import net.javols.Data;
 import net.javols.Key;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Data(transform = MyTransformData.Tr.class)
 abstract class MyTransformData {
 
-  @Key(value = "mapper", mappedBy = Ma.class)
-  abstract Integer mapper();
+  @Key(value = "number", mappedBy = Ma.class)
+  abstract Integer number();
 
-  static class Ma implements Function<BigInteger, Integer> {
+  static class Ma implements Function<BigDecimal, Integer> {
     @Override
-    public Integer apply(BigInteger s) {
+    public Integer apply(BigDecimal s) {
       return s.intValue();
     }
   }
 
-  static class Tr implements Supplier<Function<BigInteger, BigInteger>> {
+  static class Tr implements Function<BigInteger, BigDecimal> {
     @Override
-    public Function<BigInteger, BigInteger> get() {
-      return Function.identity();
+    public BigDecimal apply(BigInteger bigInteger) {
+      return new BigDecimal(bigInteger);
     }
   }
 }

@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MyTransformDataTest {
 
   @Test
-  void testMyData() {
+  void testMyNumber() {
     Map<String, BigInteger> m = new HashMap<>();
-    m.put("mapper", BigInteger.ONE.negate());
+    m.put("number", BigInteger.ONE.negate());
     MyTransformData data = MyTransformData_Parser.parse(m::get);
-    assertEquals(-1, data.mapper());
+    assertEquals(-1, data.number());
   }
 }
