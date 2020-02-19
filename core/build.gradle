@@ -13,10 +13,8 @@ compileJava {
 project.sourceCompatibility = '8'
 project.targetCompatibility = '8'
 
-// Prevent a problem with org.gradle.jvm.version
-// https://docs.gradle.org/current/userguide/publishing_gradle_module_metadata.html
 tasks.withType(GenerateModuleMetadata) {
-    enabled = false
+    enabled = true
 }
 
 repositories {
@@ -25,8 +23,7 @@ repositories {
 
 dependencies {
     implementation 'com.squareup:javapoet:1.12.1'
-//    implementation 'com.github.h908714124:javols-annotations:1.1'
-    implementation project(':annotations')
+    implementation 'com.github.h908714124:javols-annotations:1.2'
     testImplementation 'com.google.testing.compile:compile-testing:0.18'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
 }
