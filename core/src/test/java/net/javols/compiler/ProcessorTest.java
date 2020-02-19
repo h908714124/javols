@@ -40,8 +40,7 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: java.lang.StringBuilder. Try defining a custom mapper.");
+        .compilesWithoutError();
   }
 
   @Test
@@ -85,8 +84,7 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: java.util.Optional. Try defining a custom mapper.");
+        .compilesWithoutError();
   }
 
   @Test
@@ -100,8 +98,7 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: java.util.Set<java.lang.String>. Try defining a custom mapper.");
+        .compilesWithoutError();
   }
 
   @Test
@@ -115,8 +112,7 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: int[]. Try defining a custom mapper.");
+        .compilesWithoutError();
   }
 
   @Test
@@ -130,8 +126,7 @@ class ProcessorTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: java.util.Date. Try defining a custom mapper.");
+        .compilesWithoutError();
   }
 
   @Test
@@ -185,21 +180,6 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .compilesWithoutError();
-  }
-
-  @Test
-  void simpleFlag() {
-    JavaFileObject javaFile = fromSource(
-        "@Data",
-        "abstract class MyData {",
-        "",
-        "  @Key(\"x\")",
-        "  abstract boolean x();",
-        "}");
-    assertAbout(javaSources()).that(singletonList(javaFile))
-        .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Unknown key type: boolean");
   }
 
   @Test
@@ -334,9 +314,8 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("Unknown key type: test.MyData.Foo. Try defining a custom mapper.");
+        .withErrorContaining("The key type may not be private.");
   }
-
 
   @Test
   void invalidNesting() {

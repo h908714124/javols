@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Each of its abstract methods must be annotated with
  * the {@link Key} annotation.
  *
-   * @see <a href="https://github.com/h908714124/javols">github</a>
+ * @see <a href="https://github.com/h908714124/javols">github</a>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
@@ -22,10 +22,7 @@ public @interface Data {
   /**
    * Declares a transform function that will be applied for each key.
    * The input type of this function defines the value type of
-   * the target map.
-   * The output of this function will be passed to the mappers;
-   * see {@link Key#mappedBy()}.
-   * The default transform is the identity on strings.
+   * the target map. The default transform is the identity on strings.
    *
    * @return an optional transform function, or function-supplier
    */

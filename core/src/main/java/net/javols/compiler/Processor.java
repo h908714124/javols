@@ -63,10 +63,11 @@ public final class Processor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
+    TypeTool tool = new TypeTool(processingEnv.getElementUtils(), processingEnv.getTypeUtils());
     try {
       getAnnotatedMethods(env, annotations).forEach(method -> {
         checkEnclosingElementIsAnnotated(method);
-        validateParameterMethod(method);
+        validateParameterMethod(method, tool);
       });
     } catch (ValidationException e) {
       processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.about);
@@ -76,12 +77,12 @@ public final class Processor extends AbstractProcessor {
         .noneMatch(name -> name.contentEquals(Data.class.getCanonicalName()))) {
       return false;
     }
-    ElementFilter.typesIn(env.getElementsAnnotatedWith(Data.class)).forEach(this::processSourceElement);
+    ElementFilter.typesIn(env.getElementsAnnotatedWith(Data.class))
+        .forEach(sourceElement -> processSourceElement(sourceElement, tool));
     return false;
   }
 
-  private void processSourceElement(TypeElement sourceElement) {
-    TypeTool tool = new TypeTool(processingEnv.getElementUtils(), processingEnv.getTypeUtils());
+  private void processSourceElement(TypeElement sourceElement, TypeTool tool) {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
       AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "transform");
@@ -134,7 +135,7 @@ public final class Processor extends AbstractProcessor {
     List<ExecutableElement> abstractMethods = methodsIn(sourceElement.getEnclosedElements()).stream()
         .filter(method -> method.getModifiers().contains(ABSTRACT))
         .collect(Collectors.toList());
-    abstractMethods.forEach(Processor::validateParameterMethod);
+    abstractMethods.forEach(method -> validateParameterMethod(method, tool));
     List<Parameter> result = new ArrayList<>();
     Set<String> keys = new HashSet<>(abstractMethods.size());
     for (ExecutableElement method : abstractMethods) {
@@ -158,7 +159,7 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private static boolean validateParameterMethod(ExecutableElement method) {
+  private static boolean validateParameterMethod(ExecutableElement method, TypeTool tool) {
     if (!method.getModifiers().contains(ABSTRACT)) {
       if (method.getAnnotation(Key.class) != null) {
         throw ValidationException.create(method, "The method must be abstract.");
@@ -177,6 +178,9 @@ public final class Processor extends AbstractProcessor {
     if (method.getAnnotation(Key.class) == null) {
       throw ValidationException.create(method, String.format("missing @%s annotation",
           Key.class.getSimpleName()));
+    }
+    if (tool.isPrivateType(method.getReturnType())) {
+      throw ValidationException.create(method, "The key type may not be private.");
     }
     return true;
   }

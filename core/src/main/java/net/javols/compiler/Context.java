@@ -7,7 +7,6 @@ import net.javols.coerce.TransformInfo;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
-import java.util.Optional;
 
 import static net.javols.compiler.Constants.NONPRIVATE_ACCESS_MODIFIERS;
 

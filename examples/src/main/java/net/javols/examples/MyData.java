@@ -15,6 +15,6 @@ abstract class MyData {
   @Key("secret")
   abstract String secret();
 
-  @Key(value = "proxy", mappedBy = ProxyMapper.class)
+  @Key(value = "proxy")
   abstract Optional<ProxySelector> proxy();
 }

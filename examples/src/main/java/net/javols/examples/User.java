@@ -11,7 +11,7 @@ abstract class User {
   @Key("name")
   abstract String name();
 
-  @Key(value = "age", mappedBy = NumberMapper.class)
+  @Key(value = "age")
   abstract int age();
 
   static class NumberMapper implements Function<String, Integer> {

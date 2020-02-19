@@ -135,7 +135,7 @@ public class TypeTool {
     return null; // success
   }
 
-  public Either<String, TypevarMapping> unify(TypeMirror concreteType, TypeMirror ym) {
+  Either<String, TypevarMapping> unify(TypeMirror concreteType, TypeMirror ym) {
     Map<String, TypeMirror> acc = new LinkedHashMap<>();
     String failure = unify(concreteType, ym, acc);
     return failure != null ? left(failure) : right(new TypevarMapping(acc, this));
@@ -180,10 +180,6 @@ public class TypeTool {
     return types.isSameType(mirror, test);
   }
 
-  PrimitiveType getPrimitiveType(TypeKind kind) {
-    return types.getPrimitiveType(kind);
-  }
-
   public boolean isSameErasure(TypeMirror x, TypeMirror y) {
     if (x.getKind().isPrimitive()) {
       return isSameType(x, y);
@@ -217,10 +213,6 @@ public class TypeTool {
 
   private DeclaredType optionalOf(TypeMirror typeMirror) {
     return types.getDeclaredType(asTypeElement(Optional.class), typeMirror);
-  }
-
-  public List<? extends TypeMirror> getDirectSupertypes(TypeMirror mirror) {
-    return types.directSupertypes(mirror);
   }
 
   public boolean isPrivateType(TypeMirror mirror) {

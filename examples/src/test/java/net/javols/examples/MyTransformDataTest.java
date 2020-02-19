@@ -14,7 +14,7 @@ class MyTransformDataTest {
   void testMyNumber() {
     Map<String, BigInteger> m = new HashMap<>();
     m.put("number", BigInteger.ONE.negate());
-    MyTransformData data = MyTransformData_Parser.parse(m::get);
+    MyTransformData data = new MyTransformData_Parser(new MyTransformData.Ma()).parse(m::get);
     assertEquals(-1, data.number());
   }
 }

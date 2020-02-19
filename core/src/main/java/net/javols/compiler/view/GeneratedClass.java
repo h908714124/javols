@@ -8,16 +8,17 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import net.javols.coerce.Coercion;
+import net.javols.coerce.mapper.MapperGap;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.STATIC;
+import java.util.stream.Collectors;
 
 /**
  * Generates the *_Parser class.
@@ -50,14 +51,32 @@ public final class GeneratedClass {
   public TypeSpec define() {
     TypeSpec.Builder spec = TypeSpec.classBuilder(context.generatedClass());
 
+    List<MapperGap> gaps = context.parameters().stream()
+        .map(Parameter::coercion)
+        .map(Coercion::gap)
+        .collect(Collectors.toList());
+
     spec.addMethod(parseMethodOverload())
         .addMethod(parseMethod())
-        .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).build());
+        .addMethod(constructor(gaps));
 
     spec.addType(Impl.define(context));
 
+    for (MapperGap gap : gaps) {
+      spec.addField(gap.field());
+    }
+
     return spec.addModifiers(context.getAccessModifiers())
         .addJavadoc(javadoc()).build();
+  }
+
+  private MethodSpec constructor(List<MapperGap> gaps) {
+    MethodSpec.Builder spec = MethodSpec.constructorBuilder().addModifiers(context.getAccessModifiers());
+    for (MapperGap gap : gaps) {
+      spec.addParameter(gap.param());
+      spec.addStatement("this.$N = $N", gap.field(), gap.param());
+    }
+    return spec.build();
   }
 
   private MethodSpec parseMethodOverload() {
@@ -67,7 +86,6 @@ public final class GeneratedClass {
         .addStatement("return parse($N, $N -> new $T($S + $N + $S))", f, key, IllegalArgumentException.class,
             "Missing required key: <", key, ">")
         .returns(context.sourceType())
-        .addModifiers(STATIC)
         .addModifiers(context.getAccessModifiers())
         .build();
   }
@@ -92,7 +110,6 @@ public final class GeneratedClass {
     return spec.addParameters(Arrays.asList(f, errMissing))
         .addStatement("return new $T($L)", context.implType(), getBuildExpr(transform, e, a))
         .returns(context.sourceType())
-        .addModifiers(STATIC)
         .addModifiers(context.getAccessModifiers())
         .build();
   }
@@ -125,9 +142,8 @@ public final class GeneratedClass {
   private CodeBlock extractExpression(Parameter param, ParameterSpec transform, ParameterSpec a, ParameterSpec e) {
     return CodeBlock.builder().add("$N.apply($S)", a, param.key())
         .add(".map($N)", transform)
-        .add(".map($L)", param.coercion().mapExpr())
-        .add(collectExpr(param, e))
-        .build();
+        .add(".map($N)", param.coercion().gap().field())
+        .add(collectExpr(param, e)).build();
   }
 
   private CodeBlock collectExpr(Parameter param, ParameterSpec e) {

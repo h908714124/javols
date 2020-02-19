@@ -9,8 +9,6 @@ import net.javols.coerce.TransformInfo;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,10 +36,8 @@ public final class Parameter {
   }
 
   static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TransformInfo transformInfo) {
-    AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceMethod, Key.class, "mappedBy");
-    Optional<TypeElement> mapperClass = annotationUtil.getAttributeValue();
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, mapperClass, transformInfo, tool);
+    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, transformInfo, tool);
     return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 

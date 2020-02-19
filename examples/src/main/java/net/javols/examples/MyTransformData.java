@@ -10,7 +10,7 @@ import java.util.function.Function;
 @Data(transform = MyTransformData.Tr.class)
 abstract class MyTransformData {
 
-  @Key(value = "number", mappedBy = Ma.class)
+  @Key(value = "number")
   abstract Integer number();
 
   static class Ma implements Function<BigDecimal, Integer> {

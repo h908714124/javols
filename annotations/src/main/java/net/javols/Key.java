@@ -22,15 +22,4 @@ public @interface Key {
    * @return a string that is unique among the key methods
    */
   String value();
-
-  /**
-   * Declares a custom mapper for this key.
-   * This must be a
-   * {@link java.util.function.Function Function}
-   * accepting strings, or the output type of the
-   * {@link Data#transform() transform function}.
-   *
-   * @return an optional mapper function, or function-supplier
-   */
-  Class<?> mappedBy() default Object.class;
 }

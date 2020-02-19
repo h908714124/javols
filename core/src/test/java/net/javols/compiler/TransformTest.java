@@ -26,30 +26,6 @@ class TransformTest {
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("Define a custom mapper for this key.");
-  }
-
-  @Test
-  void incompatibleMapper() {
-    JavaFileObject javaFile = fromSource(
-        "@Data(transform = MyData.Tr.class)",
-        "abstract class MyData {",
-        "",
-        "  @Key(value = \"x\", mappedBy = Ma.class)",
-        "  abstract Optional<int[]> foo();",
-        "",
-        "  static class Ma implements Function<String, int[]> {",
-        "    public int[] apply(String s) { return null; }",
-        "  }",
-        "",
-        "  static class Tr implements Function<String, Integer> {",
-        "    public Integer apply(String s) { return null; }",
-        "  }",
-        "}");
-    assertAbout(javaSources()).that(singletonList(javaFile))
-        .processedWith(new Processor())
-        .failsToCompile()
-        .withErrorContaining("can't assign java.lang.String to java.lang.Integer");
+        .compilesWithoutError();
   }
 }

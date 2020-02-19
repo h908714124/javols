@@ -5,6 +5,7 @@ import com.squareup.javapoet.ParameterSpec;
 import net.javols.coerce.BasicInfo;
 import net.javols.coerce.Coercion;
 import net.javols.coerce.Skew;
+import net.javols.coerce.mapper.MapperGap;
 import net.javols.compiler.TypeTool;
 
 import javax.lang.model.type.TypeMirror;
@@ -35,10 +36,8 @@ public class AutoMatcher {
   }
 
   private Coercion createCoercion(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
-    return basicInfo.findAutoMapper(testType)
-        .map(mapExpr -> new Coercion(mapExpr, extractExpr, skew, constructorParam))
-        .orElseThrow(() -> basicInfo.failure(String.format("Unknown key type: %s. Try defining a custom mapper.",
-            basicInfo.returnType())));
+    MapperGap gap = new MapperGap(basicInfo.transformInfo().outputType(), testType, basicInfo.paramName());
+    return new Coercion(gap, extractExpr, skew, constructorParam);
   }
 
   private TypeTool tool() {
