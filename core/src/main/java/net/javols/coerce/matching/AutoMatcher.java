@@ -36,7 +36,7 @@ public class AutoMatcher {
   }
 
   private Coercion createCoercion(TypeMirror testType, CodeBlock extractExpr, ParameterSpec constructorParam, Skew skew) {
-    MapperGap gap = new MapperGap(basicInfo.transformInfo().outputType(), testType, basicInfo.paramName());
+    MapperGap gap = new MapperGap(basicInfo.transformInfo().asType(), testType, basicInfo.paramName());
     return new Coercion(gap, extractExpr, skew, constructorParam);
   }
 

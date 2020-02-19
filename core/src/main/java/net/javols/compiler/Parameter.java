@@ -9,6 +9,7 @@ import net.javols.coerce.TransformInfo;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,9 +36,9 @@ public final class Parameter {
     return coercion;
   }
 
-  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TransformInfo transformInfo) {
+  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TypeElement valueType) {
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, transformInfo, tool);
+    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, valueType, tool);
     return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 

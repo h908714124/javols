@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-@Data(transform = MyTransformData.Tr.class)
+@Data(valueType = BigDecimal.class)
 abstract class MyTransformData {
 
   @Key(value = "number")

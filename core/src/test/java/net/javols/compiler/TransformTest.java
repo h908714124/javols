@@ -14,15 +14,11 @@ class TransformTest {
   @Test
   void missingMapper() {
     JavaFileObject javaFile = fromSource(
-        "@Data(transform = MyData.Tr.class)",
+        "@Data(valueType = Integer.class)",
         "abstract class MyData {",
         "",
         "  @Key(value = \"x\")",
         "  abstract Optional<String> foo();",
-        "",
-        "  static class Tr implements Function<String, Integer> {",
-        "    public Integer apply(String s) { return null; }",
-        "  }",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())

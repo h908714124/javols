@@ -18,7 +18,7 @@ class ProcessorTest {
   @Test
   void duplicateName() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "  @Key(\"x\") abstract String a();",
         "  @Key(\"x\") abstract String b();",
@@ -32,7 +32,7 @@ class ProcessorTest {
   @Test
   void unknownReturnType() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -46,7 +46,7 @@ class ProcessorTest {
   @Test
   void declaredException() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -61,7 +61,7 @@ class ProcessorTest {
   @Test
   void classNotAbstract() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -76,7 +76,7 @@ class ProcessorTest {
   @Test
   void rawOptional() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -90,7 +90,7 @@ class ProcessorTest {
   @Test
   void parameterizedSet() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -104,7 +104,7 @@ class ProcessorTest {
   @Test
   void integerArray() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -118,7 +118,7 @@ class ProcessorTest {
   @Test
   void utilDate() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -132,7 +132,7 @@ class ProcessorTest {
   @Test
   void interfaceNotClass() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "interface Arguments {",
         "  abstract String a();",
         "}");
@@ -145,7 +145,7 @@ class ProcessorTest {
   @Test
   void noMethods() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
@@ -157,7 +157,7 @@ class ProcessorTest {
   @Test
   void oneOptionalIntNotOptional() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -171,7 +171,7 @@ class ProcessorTest {
   @Test
   void oneOptionalInt() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -185,7 +185,7 @@ class ProcessorTest {
   @Test
   void simpleInt() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -201,7 +201,7 @@ class ProcessorTest {
     JavaFileObject javaFile = fromSource(
         "abstract class MyData {",
         "",
-        "  @Data",
+        "  @Data(valueType = String.class)",
         "  static abstract class Foo extends MyData {",
         "    @Key(\"x\") abstract String a();",
         "  }",
@@ -217,7 +217,7 @@ class ProcessorTest {
     JavaFileObject javaFile = fromSource(
         "interface MyData {",
         "",
-        "  @Data",
+        "  @Data(valueType = String.class)",
         "  abstract class Foo implements MyData {",
         "    @Key(\"x\") abstract String a();",
         "  }",
@@ -243,7 +243,7 @@ class ProcessorTest {
   @Test
   void abstractMethodHasParameter() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "  @Key(\"x\") abstract String a(int b, int c);",
         "}");
@@ -256,7 +256,7 @@ class ProcessorTest {
   @Test
   void typeParameter() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "  @Key(\"x\") abstract <E> String a();",
         "}");
@@ -269,7 +269,7 @@ class ProcessorTest {
   @Test
   void missingAnnotation() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  abstract List<String> a();",
@@ -283,7 +283,7 @@ class ProcessorTest {
   @Test
   void innerEnum() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -301,7 +301,7 @@ class ProcessorTest {
   @Test
   void privateEnum() {
     JavaFileObject javaFile = fromSource(
-        "@Data",
+        "@Data(valueType = String.class)",
         "abstract class MyData {",
         "",
         "  @Key(\"x\")",
@@ -322,7 +322,7 @@ class ProcessorTest {
     JavaFileObject javaFile = fromSource(
         "class Bob {",
         "  private static class Foo {",
-        "    @Data",
+        "    @Data(valueType = String.class)",
         "    abstract static class Bar {",
         "    }",
         "  }",

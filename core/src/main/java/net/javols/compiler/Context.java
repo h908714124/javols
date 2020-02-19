@@ -2,7 +2,6 @@ package net.javols.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import net.javols.coerce.TransformInfo;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -22,17 +21,17 @@ public final class Context {
   private final List<Parameter> parameters;
 
   // from annotation
-  private final TransformInfo transform;
+  private final TypeElement valueType;
 
   Context(
       TypeElement sourceElement,
       ClassName generatedClass,
       List<Parameter> parameters,
-      TransformInfo transform) {
+      TypeElement valueType) {
     this.sourceElement = sourceElement;
     this.generatedClass = generatedClass;
     this.parameters = parameters;
-    this.transform = transform;
+    this.valueType = valueType;
   }
 
   public ClassName implType() {
@@ -57,7 +56,7 @@ public final class Context {
     return parameters;
   }
 
-  public TransformInfo transform() {
-    return transform;
+  public TypeElement valueType() {
+    return valueType;
   }
 }

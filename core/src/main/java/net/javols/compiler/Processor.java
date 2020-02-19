@@ -1,13 +1,11 @@
 package net.javols.compiler;
 
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import net.javols.Data;
 import net.javols.Key;
 import net.javols.coerce.SuppliedClassValidator;
-import net.javols.coerce.TransformInfo;
 import net.javols.compiler.view.GeneratedClass;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -16,6 +14,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
@@ -26,9 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,23 +82,30 @@ public final class Processor extends AbstractProcessor {
   private void processSourceElement(TypeElement sourceElement, TypeTool tool) {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
-      AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "transform");
-      Optional<TypeElement> transform = annotationUtil.getAttributeValue();
+      AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "valueType");
       validateSourceElement(tool, sourceElement);
-      TransformInfo transformInfo = transform.map(t -> TransformInfo.checkTransform(m -> ValidationException.create(sourceElement, m), tool, t))
-          .orElseGet(() -> new TransformInfo(tool.asType(String.class), tool.asType(String.class),
-              CodeBlock.of("$T.identity()", Function.class)));
-      List<Parameter> parameters = getParams(tool, sourceElement, transformInfo);
+      TypeElement valueType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
+      checkValueType(valueType);
+      List<Parameter> parameters = getParams(tool, sourceElement, valueType);
       if (parameters.isEmpty()) { // javapoet #739
         throw ValidationException.create(sourceElement, "Define at least one abstract method");
       }
-      Context context = new Context(sourceElement, generatedClass, parameters, transformInfo);
+      Context context = new Context(sourceElement, generatedClass, parameters, valueType);
       TypeSpec typeSpec = GeneratedClass.create(context).define();
       write(sourceElement, context.generatedClass(), typeSpec);
     } catch (ValidationException e) {
       processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.about);
     } catch (AssertionError error) {
       handleUnknownError(sourceElement, error);
+    }
+  }
+
+  private static void checkValueType(TypeElement valueType) {
+    if (!valueType.getTypeParameters().isEmpty()) {
+      throw ValidationException.create(valueType, "The value type may not have any type parameters.");
+    }
+    if (valueType.getModifiers().contains(Modifier.PRIVATE)) {
+      throw ValidationException.create(valueType, "The value type may not be private.");
     }
   }
 
@@ -131,7 +135,7 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private List<Parameter> getParams(TypeTool tool, TypeElement sourceElement, TransformInfo transformInfo) {
+  private List<Parameter> getParams(TypeTool tool, TypeElement sourceElement, TypeElement valueType) {
     List<ExecutableElement> abstractMethods = methodsIn(sourceElement.getEnclosedElements()).stream()
         .filter(method -> method.getModifiers().contains(ABSTRACT))
         .collect(Collectors.toList());
@@ -139,7 +143,7 @@ public final class Processor extends AbstractProcessor {
     List<Parameter> result = new ArrayList<>();
     Set<String> keys = new HashSet<>(abstractMethods.size());
     for (ExecutableElement method : abstractMethods) {
-      Parameter param = Parameter.create(tool, method, transformInfo);
+      Parameter param = Parameter.create(tool, method, valueType);
       if (!keys.add(param.key())) {
         throw ValidationException.create(method, "Duplicate key: " + param.key());
       }

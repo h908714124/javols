@@ -43,7 +43,7 @@ public final class GeneratedClass {
 
   public static GeneratedClass create(Context context) {
     ParameterizedTypeName fType = ParameterizedTypeName.get(ClassName.get(Function.class),
-        TypeName.get(String.class), TypeName.get(context.transform().inputType()));
+        TypeName.get(String.class), TypeName.get(context.valueType().asType()));
     ParameterSpec f = ParameterSpec.builder(fType, "f").build();
     return new GeneratedClass(context, f);
   }
@@ -92,33 +92,29 @@ public final class GeneratedClass {
 
   private MethodSpec parseMethod() {
 
-    TypeName transformType = ParameterizedTypeName.get(ClassName.get(Function.class),
-        TypeName.get(context.transform().inputType()), TypeName.get(context.transform().outputType()));
-    ParameterSpec transform = ParameterSpec.builder(transformType, "t").build();
-    ParameterSpec key = ParameterSpec.builder(transformType, "key").build();
+    ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
     ParameterSpec e = eParam();
     ParameterSpec a = aParam();
     MethodSpec.Builder spec = MethodSpec.methodBuilder("parse");
     spec.addException(X);
     spec.addTypeVariable(X);
-    spec.addStatement("$T $N = $L", transformType, transform, context.transform().transformExpr());
     spec.addStatement("$T $N = $N -> $T.ofNullable($N.apply($N))", a.type, a, key, Optional.class, f, key);
     if (context.parameters().stream().anyMatch(Parameter::isRequired)) {
       spec.addStatement("$T $N = $N -> () -> $N.apply($N)", e.type, e, key, errMissing, key);
     }
 
     return spec.addParameters(Arrays.asList(f, errMissing))
-        .addStatement("return new $T($L)", context.implType(), getBuildExpr(transform, e, a))
+        .addStatement("return new $T($L)", context.implType(), getBuildExpr(e, a))
         .returns(context.sourceType())
         .addModifiers(context.getAccessModifiers())
         .build();
   }
 
-  private CodeBlock getBuildExpr(ParameterSpec transform, ParameterSpec e, ParameterSpec a) {
+  private CodeBlock getBuildExpr(ParameterSpec e, ParameterSpec a) {
     CodeBlock.Builder args = CodeBlock.builder().add("\n");
     for (int j = 0; j < context.parameters().size(); j++) {
       Parameter param = context.parameters().get(j);
-      args.add(extractExpression(param, transform, a, e));
+      args.add(extractExpression(param, a, e));
       if (j < context.parameters().size() - 1) {
         args.add(",\n");
       }
@@ -135,13 +131,12 @@ public final class GeneratedClass {
   private ParameterSpec aParam() {
     TypeName aType = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(String.class), ParameterizedTypeName.get(ClassName.get(Optional.class),
-            ClassName.get(context.transform().inputType())));
+            ClassName.get(context.valueType())));
     return ParameterSpec.builder(aType, "a").build();
   }
 
-  private CodeBlock extractExpression(Parameter param, ParameterSpec transform, ParameterSpec a, ParameterSpec e) {
+  private CodeBlock extractExpression(Parameter param, ParameterSpec a, ParameterSpec e) {
     return CodeBlock.builder().add("$N.apply($S)", a, param.key())
-        .add(".map($N)", transform)
         .add(".map($N)", param.coercion().gap().field())
         .add(collectExpr(param, e)).build();
   }

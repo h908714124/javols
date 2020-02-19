@@ -20,11 +20,9 @@ import java.lang.annotation.Target;
 public @interface Data {
 
   /**
-   * Declares a transform function that will be applied for each key.
-   * The input type of this function defines the value type of
-   * the target map. The default transform is the identity on strings.
+   * The value type of the target map.
    *
-   * @return an optional transform function, or function-supplier
+   * @return a non-private class
    */
-  Class<?> transform() default Object.class;
+  Class<?> valueType();
 }

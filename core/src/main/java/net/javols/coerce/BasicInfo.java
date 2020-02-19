@@ -6,6 +6,7 @@ import net.javols.compiler.TypeTool;
 import net.javols.compiler.ValidationException;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -17,19 +18,19 @@ public class BasicInfo {
 
   private final TypeTool tool;
 
-  private final TransformInfo transformInfo;
+  private final TypeElement valueType;
 
   private final String paramName;
 
-  private BasicInfo(ExecutableElement sourceMethod, TypeTool tool, TransformInfo transformInfo) {
+  private BasicInfo(ExecutableElement sourceMethod, TypeTool tool, TypeElement valueType) {
     this.sourceMethod = sourceMethod;
     this.tool = tool;
-    this.transformInfo = transformInfo;
+    this.valueType = valueType;
     this.paramName = sourceMethod.getSimpleName().toString();
   }
 
-  static BasicInfo create(ExecutableElement sourceMethod, TypeTool tool, TransformInfo transformInfo) {
-    return new BasicInfo(sourceMethod, tool, transformInfo);
+  static BasicInfo create(ExecutableElement sourceMethod, TypeTool tool, TypeElement valueType) {
+    return new BasicInfo(sourceMethod, tool, valueType);
   }
 
   public ParameterSpec constructorParam(TypeMirror type) {
@@ -48,8 +49,8 @@ public class BasicInfo {
     return tool;
   }
 
-  public TransformInfo transformInfo() {
-    return transformInfo;
+  public TypeElement transformInfo() {
+    return valueType;
   }
 
   public String paramName() {
