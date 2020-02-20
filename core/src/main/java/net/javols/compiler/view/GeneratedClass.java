@@ -13,6 +13,7 @@ import net.javols.coerce.mapper.MapperGap;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
+import javax.lang.model.element.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -60,18 +61,73 @@ public final class GeneratedClass {
         .addMethod(parseMethod())
         .addMethod(constructor(gaps));
 
-    spec.addType(Impl.define(context));
+    TypeSpec.Builder builderSpec = TypeSpec.classBuilder(context.generatedClass().nestedClass("Builder"))
+        .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
+    for (int i = 0; i < gaps.size() - 1; i++) {
+      MapperGap gap = gaps.get(i);
+      builderSpec.addField(gap.field());
+    }
+    for (int i = 0; i < gaps.size() - 1; i++) {
+      ClassName stepInterface = context.generatedClass().nestedClass(capitalize(gaps.get(i).field().name + "Consumer"));
+      TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface).addModifiers(context.getAccessModifiers());
+      MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(i).field().name)
+          .addParameter(gaps.get(i).param())
+          .returns(context.generatedClass().nestedClass(capitalize(gaps.get(i + 1).field().name + "Consumer")))
+          .addModifiers(Modifier.PUBLIC)
+          .build();
+      stepSpec.addMethod(stepMethod.toBuilder().addModifiers(Modifier.ABSTRACT).build());
+      spec.addType(stepSpec.build());
+      builderSpec.addSuperinterface(stepInterface);
+      builderSpec.addMethod(stepMethod.toBuilder()
+          .addStatement("this.$N = $N", gaps.get(i).field(), gaps.get(i).param())
+          .addStatement("return this")
+          .build());
+    }
+    ClassName stepInterface = context.generatedClass().nestedClass(capitalize(gaps.get(gaps.size() - 1).field().name + "Consumer"));
+    TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface);
+    MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(gaps.size() - 1).field().name)
+        .addParameter(gaps.get(gaps.size() - 1).param())
+        .returns(context.generatedClass())
+        .addModifiers(Modifier.PUBLIC)
+        .build();
+    stepSpec.addMethod(stepMethod.toBuilder().addModifiers(Modifier.ABSTRACT).build());
+    spec.addType(stepSpec.build());
+    builderSpec.addSuperinterface(stepInterface);
+    CodeBlock.Builder constructorParams = CodeBlock.builder();
+    for (int i = 0; i < gaps.size() - 1; i++) {
+      MapperGap gap = gaps.get(i);
+      constructorParams.add("$N,$Z", gap.field());
+    }
+    constructorParams.add("$N", gaps.get(gaps.size() - 1).param());
+    builderSpec.addMethod(stepMethod.toBuilder()
+        .addStatement("return new $T($L)", context.generatedClass(), constructorParams.build())
+        .build());
+
+    spec.addMethod(MethodSpec.methodBuilder("create").addModifiers(Modifier.STATIC)
+        .addModifiers(context.getAccessModifiers())
+        .returns(context.generatedClass().nestedClass(capitalize(gaps.get(0).field().name + "Consumer")))
+        .addStatement("return new $T()", context.generatedClass().nestedClass("Builder"))
+        .build());
 
     for (MapperGap gap : gaps) {
-      spec.addField(gap.field());
+      spec.addField(gap.field().toBuilder().addModifiers(Modifier.PRIVATE, Modifier.FINAL).build());
     }
+
+    spec.addType(builderSpec.build());
+
+    spec.addType(Impl.define(context));
 
     return spec.addModifiers(context.getAccessModifiers())
         .addJavadoc(javadoc()).build();
   }
 
+  private String capitalize(String s) {
+    return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+  }
+
   private MethodSpec constructor(List<MapperGap> gaps) {
-    MethodSpec.Builder spec = MethodSpec.constructorBuilder().addModifiers(context.getAccessModifiers());
+    MethodSpec.Builder spec = MethodSpec.constructorBuilder()
+        .addModifiers(Modifier.PRIVATE);
     for (MapperGap gap : gaps) {
       spec.addParameter(gap.param());
       spec.addStatement("this.$N = $N", gap.field(), gap.param());

@@ -6,7 +6,6 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 import java.util.function.Function;
 
@@ -19,7 +18,7 @@ public class MapperGap {
   public MapperGap(TypeMirror inputType, TypeMirror outputType, String paramName) {
     TypeName type = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(inputType), TypeName.get(outputType));
-    this.field = FieldSpec.builder(type, paramName + "Mapper", Modifier.PRIVATE, Modifier.FINAL).build();
+    this.field = FieldSpec.builder(type, paramName + "Mapper").build();
     this.param = ParameterSpec.builder(type, paramName + "Mapper").build();
   }
 

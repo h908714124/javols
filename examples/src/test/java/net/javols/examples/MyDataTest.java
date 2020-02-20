@@ -16,7 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MyDataTest {
 
-  private MyData_Parser parser = new MyData_Parser(Function.identity(), Function.identity(), new ProxyMapper());
+  private MyData_Parser parser = MyData_Parser.create()
+      .apiKeyMapper(Function.identity())
+      .secretMapper(Function.identity())
+      .proxyMapper(new ProxyMapper());
 
   @Test
   void testMyData() {
