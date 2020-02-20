@@ -29,4 +29,12 @@ public class MapperGap {
   public ParameterSpec param() {
     return param;
   }
+
+  public String stepInterface() {
+    return capitalize(field().name + "Consumer");
+  }
+
+  private String capitalize(String s) {
+    return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+  }
 }

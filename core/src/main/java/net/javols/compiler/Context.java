@@ -42,10 +42,6 @@ public final class Context {
     return TypeName.get(sourceElement.asType());
   }
 
-  public String sourceTypeName() {
-    return sourceElement.getSimpleName().toString();
-  }
-
   public Modifier[] getAccessModifiers() {
     return sourceElement.getModifiers().stream()
         .filter(NONPRIVATE_ACCESS_MODIFIERS::contains)
@@ -54,6 +50,10 @@ public final class Context {
 
   public ClassName generatedClass() {
     return generatedClass;
+  }
+
+  public ClassName builderClass() {
+    return generatedClass.nestedClass("Builder");
   }
 
   public List<Parameter> parameters() {

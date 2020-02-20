@@ -61,18 +61,18 @@ public final class GeneratedClass {
         .addMethod(parseMethod())
         .addMethod(constructor(gaps));
 
-    TypeSpec.Builder builderSpec = TypeSpec.classBuilder(context.generatedClass().nestedClass("Builder"))
+    TypeSpec.Builder builderSpec = TypeSpec.classBuilder(context.builderClass())
         .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
     for (int i = 0; i < gaps.size() - 1; i++) {
       MapperGap gap = gaps.get(i);
       builderSpec.addField(gap.field());
     }
     for (int i = 0; i < gaps.size() - 1; i++) {
-      ClassName stepInterface = context.generatedClass().nestedClass(capitalize(gaps.get(i).field().name + "Consumer"));
+      ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(i).stepInterface());
       TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface).addModifiers(context.getAccessModifiers());
       MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(i).field().name)
           .addParameter(gaps.get(i).param())
-          .returns(context.generatedClass().nestedClass(capitalize(gaps.get(i + 1).field().name + "Consumer")))
+          .returns(context.generatedClass().nestedClass(gaps.get(i + 1).stepInterface()))
           .addModifiers(Modifier.PUBLIC)
           .build();
       stepSpec.addMethod(stepMethod.toBuilder().addModifiers(Modifier.ABSTRACT).build());
@@ -83,7 +83,7 @@ public final class GeneratedClass {
           .addStatement("return this")
           .build());
     }
-    ClassName stepInterface = context.generatedClass().nestedClass(capitalize(gaps.get(gaps.size() - 1).field().name + "Consumer"));
+    ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(gaps.size() - 1).stepInterface());
     TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface);
     MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(gaps.size() - 1).field().name)
         .addParameter(gaps.get(gaps.size() - 1).param())
@@ -105,8 +105,8 @@ public final class GeneratedClass {
 
     spec.addMethod(MethodSpec.methodBuilder("create").addModifiers(Modifier.STATIC)
         .addModifiers(context.getAccessModifiers())
-        .returns(context.generatedClass().nestedClass(capitalize(gaps.get(0).field().name + "Consumer")))
-        .addStatement("return new $T()", context.generatedClass().nestedClass("Builder"))
+        .returns(context.generatedClass().nestedClass(gaps.get(0).stepInterface()))
+        .addStatement("return new $T()", context.builderClass())
         .build());
 
     for (MapperGap gap : gaps) {
@@ -114,15 +114,10 @@ public final class GeneratedClass {
     }
 
     spec.addType(builderSpec.build());
-
     spec.addType(Impl.define(context));
 
     return spec.addModifiers(context.getAccessModifiers())
         .addJavadoc(javadoc()).build();
-  }
-
-  private String capitalize(String s) {
-    return Character.toUpperCase(s.charAt(0)) + s.substring(1);
   }
 
   private MethodSpec constructor(List<MapperGap> gaps) {
