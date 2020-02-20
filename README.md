@@ -10,7 +10,7 @@ structures, such as
 ### Example
 
 ````java
-@Data
+@Data(String.class)
 abstract class User {
 
   @Key("name")
@@ -89,7 +89,7 @@ which comprise all enums as well as primitives and their boxed versions, minus `
 and some other common types that have "canonical" mappers.
 
 With an explicit mapper (which is just a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
-that accepts `String`),
+that accepts the type in `@Data(type)`),
 any declared type `R` can be mapped (not just the auto types), and these rules apply:
 
 Mapper return type      | Key type                    | Skew
