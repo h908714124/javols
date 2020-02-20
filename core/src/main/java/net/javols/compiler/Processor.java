@@ -82,7 +82,7 @@ public final class Processor extends AbstractProcessor {
   private void processSourceElement(TypeElement sourceElement, TypeTool tool) {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
-      AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "valueType");
+      AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "value");
       validateSourceElement(tool, sourceElement);
       TypeElement valueType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
       checkValueType(valueType);
@@ -163,12 +163,12 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private static boolean validateParameterMethod(ExecutableElement method, TypeTool tool) {
+  private static void validateParameterMethod(ExecutableElement method, TypeTool tool) {
     if (!method.getModifiers().contains(ABSTRACT)) {
       if (method.getAnnotation(Key.class) != null) {
         throw ValidationException.create(method, "The method must be abstract.");
       }
-      return false;
+      return;
     }
     if (!method.getParameters().isEmpty()) {
       throw ValidationException.create(method, "The method may not have parameters.");
@@ -186,7 +186,6 @@ public final class Processor extends AbstractProcessor {
     if (tool.isPrivateType(method.getReturnType())) {
       throw ValidationException.create(method, "The key type may not be private.");
     }
-    return true;
   }
 
   private List<ExecutableElement> getAnnotatedMethods(RoundEnvironment env, Set<? extends TypeElement> annotations) {

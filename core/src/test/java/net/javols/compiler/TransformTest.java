@@ -14,7 +14,7 @@ class TransformTest {
   @Test
   void missingMapper() {
     JavaFileObject javaFile = fromSource(
-        "@Data(valueType = Integer.class)",
+        "@Data(Integer.class)",
         "abstract class MyData {",
         "",
         "  @Key(value = \"x\")",

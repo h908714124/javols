@@ -6,7 +6,7 @@ import net.javols.Key;
 import java.net.ProxySelector;
 import java.util.Optional;
 
-@Data(valueType = String.class)
+@Data(String.class)
 abstract class MyData {
 
   @Key("apiKey")
@@ -15,6 +15,6 @@ abstract class MyData {
   @Key("secret")
   abstract String secret();
 
-  @Key(value = "proxy")
+  @Key("proxy")
   abstract Optional<ProxySelector> proxy();
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation marks an abstract model class
  * that contains &quot;key methods&quot;, which correspond
- * to known keys of a {@link String}-keyed map.
+ * to the known keys of the target map.
  *
  * Each of its abstract methods must be annotated with
  * the {@link Key} annotation.
@@ -24,5 +24,5 @@ public @interface Data {
    *
    * @return a non-private class
    */
-  Class<?> valueType();
+  Class<?> value();
 }

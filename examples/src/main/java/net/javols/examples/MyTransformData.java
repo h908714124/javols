@@ -7,10 +7,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-@Data(valueType = BigDecimal.class)
+@Data(BigDecimal.class)
 abstract class MyTransformData {
 
-  @Key(value = "number")
+  @Key("number")
   abstract Integer number();
 
   static class Ma implements Function<BigDecimal, Integer> {

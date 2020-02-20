@@ -5,7 +5,7 @@ import net.javols.Key;
 
 import java.util.function.Function;
 
-@Data(valueType = String.class)
+@Data(String.class)
 abstract class User {
 
   @Key("name")
