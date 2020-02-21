@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import net.javols.coerce.Coercion;
 import net.javols.coerce.mapper.MapperGap;
+import net.javols.compiler.CarryArg;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
@@ -62,9 +63,14 @@ public final class GeneratedClass {
         .map(Parameter::coercion)
         .map(Coercion::gap)
         .collect(Collectors.toList());
+    ClassName parserClass = context.generatedClass().nestedClass("Parser");
 
-    spec.addMethod(parseMethodOverload())
-        .addMethod(parseMethod())
+    spec.addMethod(MethodSpec.methodBuilder("prepare")
+        .addParameters(context.carryArgs().stream().map(CarryArg::param).collect(Collectors.toList()))
+        .returns(parserClass)
+        .addStatement("return new $T($L)", parserClass, context.carryBlock())
+        .addModifiers(context.getAccessModifiers())
+        .build())
         .addMethod(constructor(gaps));
 
     TypeSpec.Builder builderSpec = TypeSpec.classBuilder(context.builderClass())
@@ -72,10 +78,8 @@ public final class GeneratedClass {
     for (int i = 0; i < gaps.size() - 1; i++) {
       MapperGap gap = gaps.get(i);
       builderSpec.addField(gap.field());
-    }
-    for (int i = 0; i < gaps.size() - 1; i++) {
       ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(i).stepInterface());
-      MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(i).field().name)
+      MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(i).mapperName())
           .addParameter(gaps.get(i).param())
           .returns(context.generatedClass().nestedClass(gaps.get(i + 1).stepInterface()))
           .addModifiers(PUBLIC)
@@ -91,7 +95,7 @@ public final class GeneratedClass {
               .build());
     }
     ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(gaps.size() - 1).stepInterface());
-    MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(gaps.size() - 1).field().name)
+    MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(gaps.size() - 1).mapperName())
         .addParameter(gaps.get(gaps.size() - 1).param())
         .returns(context.generatedClass())
         .addModifiers(PUBLIC)
@@ -114,9 +118,26 @@ public final class GeneratedClass {
     spec.addFields(getFields(gaps));
     spec.addType(builderSpec.build());
     spec.addType(Impl.define(context));
+    spec.addType(TypeSpec.classBuilder(parserClass)
+        .addModifiers(context.getAccessModifiers())
+        .addFields(context.carryArgs().stream().map(CarryArg::field).collect(Collectors.toList()))
+        .addMethod(parserConstructor())
+        .addMethod(parseMethodOverload())
+        .addMethod(parseMethod())
+        .build());
 
     return spec.addModifiers(context.getAccessModifiers())
         .addJavadoc(javadoc()).build();
+  }
+
+
+  private MethodSpec parserConstructor() {
+    MethodSpec.Builder spec = MethodSpec.constructorBuilder();
+    for (CarryArg carryArgument : context.carryArgs()) {
+      spec.addParameter(carryArgument.param());
+      spec.addStatement(carryArgument.assignment());
+    }
+    return spec.addModifiers(PRIVATE).build();
   }
 
   private List<FieldSpec> getFields(List<MapperGap> gaps) {
@@ -180,15 +201,18 @@ public final class GeneratedClass {
   }
 
   private CodeBlock getBuildExpr(ParameterSpec e, ParameterSpec a) {
-    CodeBlock.Builder args = CodeBlock.builder().add("\n");
+    CodeBlock.Builder code = CodeBlock.builder().add("\n");
+    for (CarryArg carryArg : context.carryArgs()) {
+      code.add("this.$N,\n", carryArg.field());
+    }
     for (int j = 0; j < context.parameters().size(); j++) {
       Parameter param = context.parameters().get(j);
-      args.add(extractExpression(param, a, e));
+      code.add(extractExpression(param, a, e));
       if (j < context.parameters().size() - 1) {
-        args.add(",\n");
+        code.add(",\n");
       }
     }
-    return args.build();
+    return code.build();
   }
 
   private ParameterSpec eParam() {

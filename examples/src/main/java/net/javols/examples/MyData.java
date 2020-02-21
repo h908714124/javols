@@ -10,6 +10,12 @@ import java.util.OptionalInt;
 @Data(String.class)
 abstract class MyData {
 
+  private final int myLuckyNumber;
+
+  MyData(int luckyNumber) {
+    this.myLuckyNumber = luckyNumber;
+  }
+
   @Key("apiKey")
   abstract String apiKey();
 
@@ -18,4 +24,8 @@ abstract class MyData {
 
   @Key("proxy")
   abstract Optional<ProxySelector> proxy();
+
+  public int getMyLuckyNumber() {
+    return myLuckyNumber;
+  }
 }

@@ -18,12 +18,14 @@ public class MapperGap {
 
   private final FieldSpec field;
   private final ParameterSpec param;
+  private final String name;
 
   public MapperGap(TypeMirror dataType, TypeMirror keyType, String paramName) {
     TypeName type = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(dataType), TypeName.get(keyType));
-    this.field = FieldSpec.builder(type, paramName + "Mapper").build();
+    this.field = FieldSpec.builder(type, "_" + paramName + "Mapper").build();
     this.param = ParameterSpec.builder(type, paramName + "Mapper").build();
+    this.name = paramName;
   }
 
   public FieldSpec field() {
@@ -35,10 +37,14 @@ public class MapperGap {
   }
 
   public String stepInterface() {
-    return capitalize(field().name + "Consumer");
+    return capitalize(mapperName() + "Consumer");
   }
 
   private String capitalize(String s) {
     return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+  }
+
+  public String mapperName() {
+    return name + "Mapper";
   }
 }

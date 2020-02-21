@@ -49,6 +49,6 @@ public class AutoMatcher {
   }
 
   private ParameterSpec constructorParam(TypeMirror type) {
-    return ParameterSpec.builder(TypeName.get(type), sourceMethod.getSimpleName().toString()).build();
+    return ParameterSpec.builder(TypeName.get(type), "_" + sourceMethod.getSimpleName().toString()).build();
   }
 }

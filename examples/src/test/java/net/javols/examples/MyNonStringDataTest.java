@@ -21,7 +21,7 @@ class MyNonStringDataTest {
     m.put("number", BigInteger.ONE.negate());
     Function<String, BigInteger> get = m::get;
     Function<String, BigDecimal> f = get.andThen(new MyNonStringData.Tr());
-    MyNonStringData data = parser.parse(f);
+    MyNonStringData data = parser.prepare().parse(f);
     assertEquals(-1, data.number());
   }
 }

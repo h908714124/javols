@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,14 +82,15 @@ public final class Processor extends AbstractProcessor {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
       AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "value");
-      Optional<ExecutableElement> constructor = new DataClassValidator(tool).runChecks(sourceElement);
+      List<CarryArg> carryArgs = new DataClassValidator(tool).runChecks(sourceElement)
+          .map(this::getCarryArgs).orElse(Collections.emptyList());
       TypeElement dataType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
       checkDataType(dataType);
       List<Parameter> parameters = getParams(tool, sourceElement, dataType);
       if (parameters.isEmpty()) { // javapoet #739
         throw ValidationException.create(sourceElement, "Define at least one abstract method");
       }
-      Context context = new Context(sourceElement, generatedClass, parameters, dataType);
+      Context context = new Context(sourceElement, generatedClass, parameters, dataType, carryArgs);
       TypeSpec typeSpec = GeneratedClass.create(context).define();
       write(sourceElement, context.generatedClass(), typeSpec);
     } catch (ValidationException e) {
@@ -98,6 +98,13 @@ public final class Processor extends AbstractProcessor {
     } catch (AssertionError error) {
       handleUnknownError(sourceElement, error);
     }
+  }
+
+  private List<CarryArg> getCarryArgs(ExecutableElement carryConstructor) {
+    return carryConstructor.getParameters().stream()
+        .map(CarryArg::new)
+        .collect(Collectors.toList());
+
   }
 
   private static void checkDataType(TypeElement dataType) {

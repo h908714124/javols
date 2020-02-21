@@ -357,14 +357,9 @@ class ProcessorTest {
     JavaFileObject javaFile = fromSource(
         "@Data(String.class)",
         "abstract class MyData {",
-        "  private final Integer input;",
-        "  MyData(Integer input) {",
-        "    this.input = input;",
-        "  }",
+        "  MyData(Integer input) {}",
         "  @Key(\"x\") abstract String a();",
-        "  Integer getInput() {",
-        "    return input;",
-        "  }",
+        "  Integer getInput() { return null; }",
         "}");
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())

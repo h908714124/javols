@@ -28,7 +28,7 @@ class MyDataTest {
     m.put("apiKey", "A");
     m.put("secret", "1");
     m.put("proxy", "proxy.intra.net:1234");
-    MyData data = parser.parse(m::get);
+    MyData data = parser.prepare(0).parse(m::get);
     assertEquals("A", data.apiKey());
     assertEquals(OptionalInt.of(1), data.secret());
     assertTrue(data.proxy().isPresent());
@@ -42,8 +42,9 @@ class MyDataTest {
     Map<String, String> m = new HashMap<>();
     m.put("apiKey", "A");
     m.put("secret", "1");
-    MyData data = parser.parse(m::get);
+    MyData data = parser.prepare(13).parse(m::get);
     assertEquals("A", data.apiKey());
+    assertEquals(13, data.getMyLuckyNumber());
     assertEquals(OptionalInt.of(1), data.secret());
     assertFalse(data.proxy().isPresent());
   }
@@ -52,7 +53,8 @@ class MyDataTest {
   void testApiKeyAbsent() {
     Map<String, String> m = new HashMap<>();
     m.put("secret", "1");
-    Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> parser.parse(m::get));
+    Exception e = Assertions.assertThrows(IllegalArgumentException.class,
+        () -> parser.prepare(0).parse(m::get));
     assertEquals("Missing required key: <apiKey>", e.getMessage());
   }
 }

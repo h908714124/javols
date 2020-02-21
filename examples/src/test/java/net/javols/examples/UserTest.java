@@ -16,7 +16,7 @@ class UserTest {
   @Test
   void age() {
     Map<String, String> m = Map.of("name", "Hauke", "age", "26");
-    User user = parser.parse(m::get);
+    User user = parser.prepare().parse(m::get);
     assertEquals("Hauke", user.name());
     assertEquals(26, user.age());
   }

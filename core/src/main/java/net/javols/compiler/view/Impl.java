@@ -3,6 +3,7 @@ package net.javols.compiler.view;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import net.javols.compiler.CarryArg;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
@@ -42,6 +43,8 @@ final class Impl {
 
   private static MethodSpec implConstructor(Context context) {
     MethodSpec.Builder spec = MethodSpec.constructorBuilder();
+    spec.addParameters(context.carryArgs().stream().map(CarryArg::collisionFreeParam).collect(Collectors.toList()));
+    spec.addStatement("super($L)", context.collisionFreeCarryBlock());
     for (Parameter p : context.parameters()) {
       spec.addStatement("this.$N = $L", field(p), p.coercion().extractExpr());
       spec.addParameter(p.coercion().constructorParam());
