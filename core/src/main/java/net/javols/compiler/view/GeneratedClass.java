@@ -2,6 +2,7 @@ package net.javols.compiler.view;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -13,13 +14,18 @@ import net.javols.coerce.mapper.MapperGap;
 import net.javols.compiler.Context;
 import net.javols.compiler.Parameter;
 
-import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static javax.lang.model.element.Modifier.ABSTRACT;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 
 /**
  * Generates the *_Parser class.
@@ -34,19 +40,19 @@ public final class GeneratedClass {
   private static final ParameterizedTypeName S2X = ParameterizedTypeName.get(ClassName.get(Function.class),
       TypeName.get(String.class), X);
 
-  private final ParameterSpec f;
+  private final ParameterSpec m;
   private final ParameterSpec errMissing = ParameterSpec.builder(S2X, "errMissing").build();
 
-  private GeneratedClass(Context context, ParameterSpec f) {
+  private GeneratedClass(Context context, ParameterSpec m) {
     this.context = context;
-    this.f = f;
+    this.m = m;
   }
 
   public static GeneratedClass create(Context context) {
-    ParameterizedTypeName fType = ParameterizedTypeName.get(ClassName.get(Function.class),
+    ParameterizedTypeName mType = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(String.class), TypeName.get(context.dataType().asType()));
-    ParameterSpec f = ParameterSpec.builder(fType, "f").build();
-    return new GeneratedClass(context, f);
+    ParameterSpec m = ParameterSpec.builder(mType, "m").build();
+    return new GeneratedClass(context, m);
   }
 
   public TypeSpec define() {
@@ -62,57 +68,50 @@ public final class GeneratedClass {
         .addMethod(constructor(gaps));
 
     TypeSpec.Builder builderSpec = TypeSpec.classBuilder(context.builderClass())
-        .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
+        .addModifiers(PRIVATE, STATIC);
     for (int i = 0; i < gaps.size() - 1; i++) {
       MapperGap gap = gaps.get(i);
       builderSpec.addField(gap.field());
     }
     for (int i = 0; i < gaps.size() - 1; i++) {
       ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(i).stepInterface());
-      TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface).addModifiers(context.getAccessModifiers());
       MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(i).field().name)
           .addParameter(gaps.get(i).param())
           .returns(context.generatedClass().nestedClass(gaps.get(i + 1).stepInterface()))
-          .addModifiers(Modifier.PUBLIC)
+          .addModifiers(PUBLIC)
           .build();
-      stepSpec.addMethod(stepMethod.toBuilder().addModifiers(Modifier.ABSTRACT).build());
-      spec.addType(stepSpec.build());
-      builderSpec.addSuperinterface(stepInterface);
-      builderSpec.addMethod(stepMethod.toBuilder()
-          .addStatement("this.$N = $N", gaps.get(i).field(), gaps.get(i).param())
-          .addStatement("return this")
-          .build());
+      spec.addType(TypeSpec.interfaceBuilder(stepInterface)
+          .addModifiers(context.getAccessModifiers())
+          .addMethod(stepMethod.toBuilder()
+              .addModifiers(ABSTRACT).build()).build());
+      builderSpec.addSuperinterface(stepInterface)
+          .addMethod(stepMethod.toBuilder()
+              .addStatement("this.$N = $N", gaps.get(i).field(), gaps.get(i).param())
+              .addStatement("return this")
+              .build());
     }
     ClassName stepInterface = context.generatedClass().nestedClass(gaps.get(gaps.size() - 1).stepInterface());
-    TypeSpec.Builder stepSpec = TypeSpec.interfaceBuilder(stepInterface);
     MethodSpec stepMethod = MethodSpec.methodBuilder(gaps.get(gaps.size() - 1).field().name)
         .addParameter(gaps.get(gaps.size() - 1).param())
         .returns(context.generatedClass())
-        .addModifiers(Modifier.PUBLIC)
+        .addModifiers(PUBLIC)
         .build();
-    stepSpec.addMethod(stepMethod.toBuilder().addModifiers(Modifier.ABSTRACT).build());
-    spec.addType(stepSpec.build());
+    spec.addType(TypeSpec.interfaceBuilder(stepInterface)
+        .addModifiers(context.getAccessModifiers())
+        .addMethod(stepMethod.toBuilder()
+            .addModifiers(ABSTRACT).build()).build());
     builderSpec.addSuperinterface(stepInterface);
-    CodeBlock.Builder constructorParams = CodeBlock.builder();
-    for (int i = 0; i < gaps.size() - 1; i++) {
-      MapperGap gap = gaps.get(i);
-      constructorParams.add("$N,$Z", gap.field());
-    }
-    constructorParams.add("$N", gaps.get(gaps.size() - 1).param());
     builderSpec.addMethod(stepMethod.toBuilder()
-        .addStatement("return new $T($L)", context.generatedClass(), constructorParams.build())
+        .addStatement("return new $T($L)", context.generatedClass(), constructorParams(gaps))
         .build());
 
-    spec.addMethod(MethodSpec.methodBuilder("create").addModifiers(Modifier.STATIC)
+    spec.addMethod(MethodSpec.methodBuilder("create").addModifiers(STATIC)
         .addModifiers(context.getAccessModifiers())
         .returns(context.generatedClass().nestedClass(gaps.get(0).stepInterface()))
         .addStatement("return new $T()", context.builderClass())
         .build());
 
-    for (MapperGap gap : gaps) {
-      spec.addField(gap.field().toBuilder().addModifiers(Modifier.PRIVATE, Modifier.FINAL).build());
-    }
-
+    spec.addFields(getFields(gaps));
     spec.addType(builderSpec.build());
     spec.addType(Impl.define(context));
 
@@ -120,9 +119,28 @@ public final class GeneratedClass {
         .addJavadoc(javadoc()).build();
   }
 
+  private List<FieldSpec> getFields(List<MapperGap> gaps) {
+    List<FieldSpec> fieldSpecs = new ArrayList<>();
+    for (MapperGap gap : gaps) {
+      FieldSpec field = gap.field().toBuilder().addModifiers(PRIVATE).build();
+      fieldSpecs.add(field);
+    }
+    return fieldSpecs;
+  }
+
+  private CodeBlock constructorParams(List<MapperGap> gaps) {
+    CodeBlock.Builder constructorParams = CodeBlock.builder();
+    for (int i = 0; i < gaps.size() - 1; i++) {
+      MapperGap gap = gaps.get(i);
+      constructorParams.add("$N,$Z", gap.field());
+    }
+    constructorParams.add("$N", gaps.get(gaps.size() - 1).param());
+    return constructorParams.build();
+  }
+
   private MethodSpec constructor(List<MapperGap> gaps) {
     MethodSpec.Builder spec = MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PRIVATE);
+        .addModifiers(PRIVATE);
     for (MapperGap gap : gaps) {
       spec.addParameter(gap.param());
       spec.addStatement("this.$N = $N", gap.field(), gap.param());
@@ -133,8 +151,8 @@ public final class GeneratedClass {
   private MethodSpec parseMethodOverload() {
     ParameterSpec key = ParameterSpec.builder(String.class, "key").build();
     return MethodSpec.methodBuilder("parse")
-        .addParameter(f)
-        .addStatement("return parse($N, $N -> new $T($S + $N + $S))", f, key, IllegalArgumentException.class,
+        .addParameter(m)
+        .addStatement("return parse($N, $N -> new $T($S + $N + $S))", m, key, IllegalArgumentException.class,
             "Missing required key: <", key, ">")
         .returns(context.sourceType())
         .addModifiers(context.getAccessModifiers())
@@ -149,12 +167,12 @@ public final class GeneratedClass {
     MethodSpec.Builder spec = MethodSpec.methodBuilder("parse");
     spec.addException(X);
     spec.addTypeVariable(X);
-    spec.addStatement("$T $N = $N -> $T.ofNullable($N.apply($N))", a.type, a, key, Optional.class, f, key);
+    spec.addStatement("$T $N = $N -> $T.ofNullable($N.apply($N))", a.type, a, key, Optional.class, m, key);
     if (context.parameters().stream().anyMatch(Parameter::isRequired)) {
       spec.addStatement("$T $N = $N -> () -> $N.apply($N)", e.type, e, key, errMissing, key);
     }
 
-    return spec.addParameters(Arrays.asList(f, errMissing))
+    return spec.addParameters(Arrays.asList(m, errMissing))
         .addStatement("return new $T($L)", context.implType(), getBuildExpr(e, a))
         .returns(context.sourceType())
         .addModifiers(context.getAccessModifiers())

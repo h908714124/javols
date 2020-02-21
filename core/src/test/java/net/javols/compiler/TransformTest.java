@@ -24,4 +24,20 @@ class TransformTest {
         .processedWith(new Processor())
         .compilesWithoutError();
   }
+
+  @Test
+  void abstractDataType() {
+    JavaFileObject javaFile = fromSource(
+        "@Data(MyData.Foo.class)",
+        "abstract class MyData {",
+        "",
+        "  interface Foo {}",
+        "",
+        "  @Key(value = \"x\")",
+        "  abstract Optional<Foo> foo();",
+        "}");
+    assertAbout(javaSources()).that(singletonList(javaFile))
+        .processedWith(new Processor())
+        .compilesWithoutError();
+  }
 }
