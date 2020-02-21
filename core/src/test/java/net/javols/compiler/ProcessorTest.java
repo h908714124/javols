@@ -299,7 +299,7 @@ class ProcessorTest {
   }
 
   @Test
-  void privateEnum() {
+  void privateKey() {
     JavaFileObject javaFile = fromSource(
         "@Data(String.class)",
         "abstract class MyData {",
@@ -314,13 +314,32 @@ class ProcessorTest {
     assertAbout(javaSources()).that(singletonList(javaFile))
         .processedWith(new Processor())
         .failsToCompile()
-        .withErrorContaining("The key type may not be private.");
+        .withErrorContaining("Unreachable key type.");
+  }
+
+  @Test
+  void privateListKey() {
+    JavaFileObject javaFile = fromSource(
+        "@Data(String.class)",
+        "abstract class MyData {",
+        "",
+        "  @Key(\"x\")",
+        "  abstract List<Foo> foo();",
+        "",
+        "  private enum Foo {",
+        "    BAR",
+        "   }",
+        "}");
+    assertAbout(javaSources()).that(singletonList(javaFile))
+        .processedWith(new Processor())
+        .failsToCompile()
+        .withErrorContaining("Unreachable key type.");
   }
 
   @Test
   void invalidNesting() {
     JavaFileObject javaFile = fromSource(
-        "class Bob {",
+        "class MyData {",
         "  private static class Foo {",
         "    @Data(String.class)",
         "    abstract static class Bar {",

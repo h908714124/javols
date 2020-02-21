@@ -41,10 +41,6 @@ public class BasicInfo {
     return sourceMethod.getReturnType();
   }
 
-  public ValidationException failure(String message) {
-    return ValidationException.create(sourceMethod, message);
-  }
-
   public TypeTool tool() {
     return tool;
   }

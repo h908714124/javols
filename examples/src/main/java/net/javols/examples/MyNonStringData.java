@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.util.function.Function;
 
 @Data(BigDecimal.class)
-abstract class MyTransformData {
+abstract class MyNonStringData {
 
   @Key("number")
   abstract Integer number();

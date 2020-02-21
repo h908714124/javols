@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,18 +19,18 @@ class MyDataTest {
 
   private MyData_Parser parser = MyData_Parser.create()
       .apiKeyMapper(Function.identity())
-      .secretMapper(Function.identity())
+      .secretMapper(Integer::parseInt)
       .proxyMapper(new ProxyMapper());
 
   @Test
   void testMyData() {
     Map<String, String> m = new HashMap<>();
     m.put("apiKey", "A");
-    m.put("secret", "B");
+    m.put("secret", "1");
     m.put("proxy", "proxy.intra.net:1234");
     MyData data = parser.parse(m::get);
     assertEquals("A", data.apiKey());
-    assertEquals("B", data.secret());
+    assertEquals(OptionalInt.of(1), data.secret());
     assertTrue(data.proxy().isPresent());
     List<Proxy> proxies = data.proxy().get().select(URI.create("http://foo.de"));
     assertEquals(1, proxies.size());
@@ -40,18 +41,18 @@ class MyDataTest {
   void testProxyAbsent() {
     Map<String, String> m = new HashMap<>();
     m.put("apiKey", "A");
-    m.put("secret", "B");
+    m.put("secret", "1");
     MyData data = parser.parse(m::get);
     assertEquals("A", data.apiKey());
-    assertEquals("B", data.secret());
+    assertEquals(OptionalInt.of(1), data.secret());
     assertFalse(data.proxy().isPresent());
   }
 
   @Test
-  void testSecretAbsent() {
+  void testApiKeyAbsent() {
     Map<String, String> m = new HashMap<>();
-    m.put("apiKey", "A");
-    Exception e = Assertions.<IllegalArgumentException>assertThrows(IllegalArgumentException.class, () -> parser.parse(m::get));
-    assertEquals("Missing required key: <secret>", e.getMessage());
+    m.put("secret", "1");
+    Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> parser.parse(m::get));
+    assertEquals("Missing required key: <apiKey>", e.getMessage());
   }
 }

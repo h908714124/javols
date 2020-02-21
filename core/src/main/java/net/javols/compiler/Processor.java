@@ -5,7 +5,6 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import net.javols.Data;
 import net.javols.Key;
-import net.javols.coerce.SuppliedClassValidator;
 import net.javols.compiler.view.GeneratedClass;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -153,7 +152,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void validateSourceElement(TypeTool tool, TypeElement sourceElement) {
-    SuppliedClassValidator.commonChecks(sourceElement);
+    DataClassValidator.commonChecks(sourceElement);
     if (!tool.isSameType(sourceElement.getSuperclass(), Object.class) ||
         !sourceElement.getInterfaces().isEmpty()) {
       throw ValidationException.create(sourceElement, "The model class may not implement or extend anything.");
@@ -183,8 +182,8 @@ public final class Processor extends AbstractProcessor {
       throw ValidationException.create(method, String.format("missing @%s annotation",
           Key.class.getSimpleName()));
     }
-    if (tool.isPrivateType(method.getReturnType())) {
-      throw ValidationException.create(method, "The key type may not be private.");
+    if (!tool.isReachable(method.getReturnType())) {
+      throw ValidationException.create(method, "Unreachable key type.");
     }
   }
 

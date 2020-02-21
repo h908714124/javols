@@ -1,7 +1,4 @@
-package net.javols.coerce;
-
-import net.javols.compiler.TypeTool;
-import net.javols.compiler.ValidationException;
+package net.javols.compiler;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -13,9 +10,9 @@ import javax.lang.model.util.ElementFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SuppliedClassValidator {
+class DataClassValidator {
 
-  public static void commonChecks(TypeElement classToCheck) {
+  static void commonChecks(TypeElement classToCheck) {
     if (classToCheck.getNestingKind().isNested() && classToCheck.getNestingKind() != NestingKind.MEMBER) {
       throw ValidationException.create(classToCheck, "Use a top level class or static inner class.");
     }

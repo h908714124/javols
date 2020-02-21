@@ -11,7 +11,7 @@ class UserTest {
 
   private User_Parser parser = User_Parser.create()
       .nameMapper(Function.identity())
-      .ageMapper(new User.NumberMapper());
+      .ageMapper(new NumberMapper());
 
   @Test
   void age() {
@@ -19,5 +19,14 @@ class UserTest {
     User user = parser.parse(m::get);
     assertEquals("Hauke", user.name());
     assertEquals(26, user.age());
+  }
+
+
+  private static class NumberMapper implements Function<String, Integer> {
+    public Integer apply(String s) {
+      int result = Integer.parseInt(s);
+      if (result < 0) throw new IllegalArgumentException("Invalid: " + s);
+      return result;
+    }
   }
 }
