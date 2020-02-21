@@ -3,8 +3,8 @@ package net.javols.compiler;
 import com.squareup.javapoet.TypeName;
 import net.javols.Key;
 import net.javols.coerce.Coercion;
-import net.javols.coerce.CoercionProvider;
 import net.javols.coerce.Skew;
+import net.javols.coerce.matching.AutoMatcher;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -35,9 +35,9 @@ public final class Parameter {
     return coercion;
   }
 
-  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TypeElement valueType) {
+  static Parameter create(TypeTool tool, ExecutableElement sourceMethod, TypeElement dataType) {
     Key parameter = sourceMethod.getAnnotation(Key.class);
-    Coercion coercion = CoercionProvider.getCoercion(sourceMethod, valueType, tool);
+    Coercion coercion = new AutoMatcher(sourceMethod, tool, dataType).match();
     return new Parameter(parameter.value(), sourceMethod, coercion);
   }
 
@@ -55,10 +55,6 @@ public final class Parameter {
 
   public boolean isRequired() {
     return coercion.getSkew() == Skew.REQUIRED;
-  }
-
-  public boolean isOptional() {
-    return coercion.getSkew() == Skew.OPTIONAL;
   }
 
   public Set<Modifier> getAccessModifiers() {

@@ -13,24 +13,10 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleElementVisitor8;
 import javax.lang.model.util.SimpleTypeVisitor8;
 import javax.lang.model.util.Types;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class TypeTool {
-
-  private static final TypeVisitor<List<? extends TypeMirror>, Void> TYPEARGS =
-      new SimpleTypeVisitor8<List<? extends TypeMirror>, Void>() {
-        @Override
-        public List<? extends TypeMirror> visitDeclared(DeclaredType declaredType, Void _null) {
-          return declaredType.getTypeArguments();
-        }
-
-        @Override
-        protected List<? extends TypeMirror> defaultAction(TypeMirror e, Void _null) {
-          return Collections.emptyList();
-        }
-      };
 
   public static final TypeVisitor<DeclaredType, Void> AS_DECLARED =
       new SimpleTypeVisitor8<DeclaredType, Void>() {
@@ -55,22 +41,6 @@ public class TypeTool {
           return typeElement;
         }
       };
-
-  private static final TypeVisitor<Boolean, TypeTool> IS_JAVA_LANG_OBJECT = new SimpleTypeVisitor8<Boolean, TypeTool>() {
-    @Override
-    protected Boolean defaultAction(TypeMirror e, TypeTool tool) {
-      return false;
-    }
-
-    @Override
-    public Boolean visitDeclared(DeclaredType type, TypeTool tool) {
-      TypeElement element = type.asElement().accept(TypeTool.AS_TYPE_ELEMENT, null);
-      if (element == null) {
-        return false;
-      }
-      return "java.lang.Object".equals(element.getQualifiedName().toString());
-    }
-  };
 
   private final Types types;
 
@@ -118,27 +88,8 @@ public class TypeTool {
     return Optional.of(declaredType.getTypeArguments().get(0));
   }
 
-  public boolean isSameType(TypeMirror mirror, TypeMirror test) {
-    return types.isSameType(mirror, test);
-  }
-
-  public boolean isSameErasure(TypeMirror x, TypeMirror y) {
-    if (x.getKind().isPrimitive()) {
-      return isSameType(x, y);
-    }
-    return types.isSameType(types.erasure(x), types.erasure(y));
-  }
-
-  public boolean isSameErasure(TypeMirror x, Class<?> y) {
-    return isSameErasure(x, erasure(y));
-  }
-
-  public TypeMirror erasure(TypeMirror typeMirror) {
-    return types.erasure(typeMirror);
-  }
-
-  public TypeMirror erasure(Class<?> type) {
-    return erasure(asType(type));
+  private boolean isSameErasure(TypeMirror x, Class<?> y) {
+    return types.isSameType(types.erasure(x), types.erasure(asType(y)));
   }
 
   public TypeMirror asType(Class<?> type) {
@@ -187,9 +138,5 @@ public class TypeTool {
       throw new IllegalArgumentException("not declared: " + mirror);
     }
     return result;
-  }
-
-  public boolean isObject(TypeMirror mirror) {
-    return mirror.accept(IS_JAVA_LANG_OBJECT, this);
   }
 }

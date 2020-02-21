@@ -12,27 +12,40 @@ import java.util.List;
 
 class DataClassValidator {
 
-  static void commonChecks(TypeElement classToCheck) {
-    if (classToCheck.getNestingKind().isNested() && classToCheck.getNestingKind() != NestingKind.MEMBER) {
-      throw ValidationException.create(classToCheck, "Use a top level class or static inner class.");
+  private final TypeTool tool;
+
+  DataClassValidator(TypeTool tool) {
+    this.tool = tool;
+  }
+
+  void runChecks(TypeElement sourceElement) {
+    if (sourceElement.getNestingKind().isNested() && sourceElement.getNestingKind() != NestingKind.MEMBER) {
+      throw ValidationException.create(sourceElement, "Use a top level class or static inner class.");
     }
-    if (classToCheck.getNestingKind().isNested() &&
-        !classToCheck.getModifiers().contains(Modifier.STATIC)) {
-      throw ValidationException.create(classToCheck, "The nested class must be static.");
+    if (sourceElement.getNestingKind().isNested() &&
+        !sourceElement.getModifiers().contains(Modifier.STATIC)) {
+      throw ValidationException.create(sourceElement, "The nested class must be static.");
     }
-    if (classToCheck.getModifiers().contains(Modifier.PRIVATE)) {
-      throw ValidationException.create(classToCheck, "The class may not be private.");
+    if (sourceElement.getModifiers().contains(Modifier.PRIVATE)) {
+      throw ValidationException.create(sourceElement, "The class may not be private.");
     }
-    if (classToCheck.getKind() == ElementKind.INTERFACE) {
-      throw ValidationException.create(classToCheck, "Use a class, not an interface.");
+    if (sourceElement.getKind() == ElementKind.INTERFACE) {
+      throw ValidationException.create(sourceElement, "Use a class, not an interface.");
     }
-    getEnclosingElements(classToCheck).forEach(element -> {
+    getEnclosingElements(sourceElement).forEach(element -> {
       if (element.getModifiers().contains(Modifier.PRIVATE)) {
         throw ValidationException.create(element, "The class may not not be private.");
       }
     });
-    if (!hasDefaultConstructor(classToCheck)) {
-      throw ValidationException.create(classToCheck, "The class must have a default constructor");
+    if (!hasDefaultConstructor(sourceElement)) {
+      throw ValidationException.create(sourceElement, "The class must have a default constructor");
+    }
+    if (!tool.isSameType(sourceElement.getSuperclass(), Object.class) ||
+        !sourceElement.getInterfaces().isEmpty()) {
+      throw ValidationException.create(sourceElement, "The model class may not implement or extend anything.");
+    }
+    if (!sourceElement.getTypeParameters().isEmpty()) {
+      throw ValidationException.create(sourceElement, "The class cannot have type parameters.");
     }
   }
 

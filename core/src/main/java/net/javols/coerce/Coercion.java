@@ -7,11 +7,8 @@ import net.javols.coerce.mapper.MapperGap;
 public class Coercion {
 
   private final ParameterSpec constructorParam;
-
   private final MapperGap gap;
-
   private final CodeBlock extractExpr;
-
   private final Skew skew;
 
   public Coercion(MapperGap gap,

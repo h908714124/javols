@@ -21,17 +21,17 @@ public final class Context {
   private final List<Parameter> parameters;
 
   // from annotation
-  private final TypeElement valueType;
+  private final TypeElement dataType;
 
   Context(
       TypeElement sourceElement,
       ClassName generatedClass,
       List<Parameter> parameters,
-      TypeElement valueType) {
+      TypeElement dataType) {
     this.sourceElement = sourceElement;
     this.generatedClass = generatedClass;
     this.parameters = parameters;
-    this.valueType = valueType;
+    this.dataType = dataType;
   }
 
   public ClassName implType() {
@@ -60,7 +60,7 @@ public final class Context {
     return parameters;
   }
 
-  public TypeElement valueType() {
-    return valueType;
+  public TypeElement dataType() {
+    return dataType;
   }
 }

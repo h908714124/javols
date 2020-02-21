@@ -82,14 +82,14 @@ public final class Processor extends AbstractProcessor {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
       AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "value");
-      validateSourceElement(tool, sourceElement);
-      TypeElement valueType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
-      checkValueType(valueType);
-      List<Parameter> parameters = getParams(tool, sourceElement, valueType);
+      new DataClassValidator(tool).runChecks(sourceElement);
+      TypeElement dataType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
+      checkDataType(dataType);
+      List<Parameter> parameters = getParams(tool, sourceElement, dataType);
       if (parameters.isEmpty()) { // javapoet #739
         throw ValidationException.create(sourceElement, "Define at least one abstract method");
       }
-      Context context = new Context(sourceElement, generatedClass, parameters, valueType);
+      Context context = new Context(sourceElement, generatedClass, parameters, dataType);
       TypeSpec typeSpec = GeneratedClass.create(context).define();
       write(sourceElement, context.generatedClass(), typeSpec);
     } catch (ValidationException e) {
@@ -99,19 +99,16 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private static void checkValueType(TypeElement valueType) {
-    if (!valueType.getTypeParameters().isEmpty()) {
-      throw ValidationException.create(valueType, "The value type may not have any type parameters.");
+  private static void checkDataType(TypeElement dataType) {
+    if (!dataType.getTypeParameters().isEmpty()) {
+      throw ValidationException.create(dataType, "The value type may not have any type parameters.");
     }
-    if (valueType.getModifiers().contains(Modifier.PRIVATE)) {
-      throw ValidationException.create(valueType, "The value type may not be private.");
+    if (dataType.getModifiers().contains(Modifier.PRIVATE)) {
+      throw ValidationException.create(dataType, "The value type may not be private.");
     }
   }
 
-  private void write(
-      TypeElement sourceElement,
-      ClassName generatedType,
-      TypeSpec definedType) {
+  private void write(TypeElement sourceElement, ClassName generatedType, TypeSpec definedType) {
     JavaFile.Builder builder = JavaFile.builder(generatedType.packageName(), definedType);
     JavaFile javaFile = builder.build();
     try {
@@ -134,7 +131,7 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  private List<Parameter> getParams(TypeTool tool, TypeElement sourceElement, TypeElement valueType) {
+  private List<Parameter> getParams(TypeTool tool, TypeElement sourceElement, TypeElement dataType) {
     List<ExecutableElement> abstractMethods = methodsIn(sourceElement.getEnclosedElements()).stream()
         .filter(method -> method.getModifiers().contains(ABSTRACT))
         .collect(Collectors.toList());
@@ -142,24 +139,13 @@ public final class Processor extends AbstractProcessor {
     List<Parameter> result = new ArrayList<>();
     Set<String> keys = new HashSet<>(abstractMethods.size());
     for (ExecutableElement method : abstractMethods) {
-      Parameter param = Parameter.create(tool, method, valueType);
+      Parameter param = Parameter.create(tool, method, dataType);
       if (!keys.add(param.key())) {
         throw ValidationException.create(method, "Duplicate key: " + param.key());
       }
       result.add(param);
     }
     return result;
-  }
-
-  private void validateSourceElement(TypeTool tool, TypeElement sourceElement) {
-    DataClassValidator.commonChecks(sourceElement);
-    if (!tool.isSameType(sourceElement.getSuperclass(), Object.class) ||
-        !sourceElement.getInterfaces().isEmpty()) {
-      throw ValidationException.create(sourceElement, "The model class may not implement or extend anything.");
-    }
-    if (!sourceElement.getTypeParameters().isEmpty()) {
-      throw ValidationException.create(sourceElement, "The class cannot have type parameters.");
-    }
   }
 
   private static void validateParameterMethod(ExecutableElement method, TypeTool tool) {

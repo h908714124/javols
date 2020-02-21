@@ -9,15 +9,19 @@ import com.squareup.javapoet.TypeName;
 import javax.lang.model.type.TypeMirror;
 import java.util.function.Function;
 
+/**
+ * The gap is the (type of the) function that the user needs to supply
+ * (at runtime) in order to map any key.
+ * It is a function from data type to key type.
+ */
 public class MapperGap {
 
   private final FieldSpec field;
-
   private final ParameterSpec param;
 
-  public MapperGap(TypeMirror inputType, TypeMirror outputType, String paramName) {
+  public MapperGap(TypeMirror dataType, TypeMirror keyType, String paramName) {
     TypeName type = ParameterizedTypeName.get(ClassName.get(Function.class),
-        TypeName.get(inputType), TypeName.get(outputType));
+        TypeName.get(dataType), TypeName.get(keyType));
     this.field = FieldSpec.builder(type, paramName + "Mapper").build();
     this.param = ParameterSpec.builder(type, paramName + "Mapper").build();
   }

@@ -44,7 +44,7 @@ public final class GeneratedClass {
 
   public static GeneratedClass create(Context context) {
     ParameterizedTypeName fType = ParameterizedTypeName.get(ClassName.get(Function.class),
-        TypeName.get(String.class), TypeName.get(context.valueType().asType()));
+        TypeName.get(String.class), TypeName.get(context.dataType().asType()));
     ParameterSpec f = ParameterSpec.builder(fType, "f").build();
     return new GeneratedClass(context, f);
   }
@@ -182,7 +182,7 @@ public final class GeneratedClass {
   private ParameterSpec aParam() {
     TypeName aType = ParameterizedTypeName.get(ClassName.get(Function.class),
         TypeName.get(String.class), ParameterizedTypeName.get(ClassName.get(Optional.class),
-            ClassName.get(context.valueType())));
+            ClassName.get(context.dataType())));
     return ParameterSpec.builder(aType, "a").build();
   }
 
