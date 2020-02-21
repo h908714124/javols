@@ -9,6 +9,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class DataClassValidator {
 
@@ -18,7 +19,7 @@ class DataClassValidator {
     this.tool = tool;
   }
 
-  void runChecks(TypeElement sourceElement) {
+  Optional<ExecutableElement> runChecks(TypeElement sourceElement) {
     if (sourceElement.getNestingKind().isNested() && sourceElement.getNestingKind() != NestingKind.MEMBER) {
       throw ValidationException.create(sourceElement, "Use a top level class or static inner class.");
     }
@@ -37,9 +38,6 @@ class DataClassValidator {
         throw ValidationException.create(element, "The class may not not be private.");
       }
     });
-    if (!hasDefaultConstructor(sourceElement)) {
-      throw ValidationException.create(sourceElement, "The class must have a default constructor");
-    }
     if (!tool.isSameType(sourceElement.getSuperclass(), Object.class) ||
         !sourceElement.getInterfaces().isEmpty()) {
       throw ValidationException.create(sourceElement, "The model class may not implement or extend anything.");
@@ -47,6 +45,7 @@ class DataClassValidator {
     if (!sourceElement.getTypeParameters().isEmpty()) {
       throw ValidationException.create(sourceElement, "The class cannot have type parameters.");
     }
+    return getConstructor(sourceElement);
   }
 
   private static List<TypeElement> getEnclosingElements(TypeElement sourceElement) {
@@ -64,20 +63,21 @@ class DataClassValidator {
     return result;
   }
 
-  private static boolean hasDefaultConstructor(TypeElement classToCheck) {
-    List<ExecutableElement> constructors = ElementFilter.constructorsIn(classToCheck.getEnclosedElements());
+  private static Optional<ExecutableElement> getConstructor(TypeElement sourceElement) {
+    List<ExecutableElement> constructors = ElementFilter.constructorsIn(sourceElement.getEnclosedElements());
     if (constructors.isEmpty()) {
-      return true;
+      return Optional.empty();
     }
-    for (ExecutableElement constructor : constructors) {
-      if (!constructor.getParameters().isEmpty()) {
-        continue;
-      }
-      if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
-        return false;
-      }
-      return constructor.getThrownTypes().isEmpty();
+    if (constructors.size() >= 2) {
+      throw ValidationException.create(sourceElement, "More than one constructor");
     }
-    return false;
+    ExecutableElement constructor = constructors.get(0);
+    if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
+      throw ValidationException.create(sourceElement, "Unreachable constructor");
+    }
+    if (!constructor.getThrownTypes().isEmpty()) {
+      throw ValidationException.create(sourceElement, "The constructor may not declare any exceptions.");
+    }
+    return Optional.of(constructor);
   }
 }

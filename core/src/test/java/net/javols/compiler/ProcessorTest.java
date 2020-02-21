@@ -352,6 +352,25 @@ class ProcessorTest {
         .withErrorContaining("The class may not not be private");
   }
 
+  @Test
+  void constructor() {
+    JavaFileObject javaFile = fromSource(
+        "@Data(String.class)",
+        "abstract class MyData {",
+        "  private final Integer input;",
+        "  MyData(Integer input) {",
+        "    this.input = input;",
+        "  }",
+        "  @Key(\"x\") abstract String a();",
+        "  Integer getInput() {",
+        "    return input;",
+        "  }",
+        "}");
+    assertAbout(javaSources()).that(singletonList(javaFile))
+        .processedWith(new Processor())
+        .compilesWithoutError();
+  }
+
   static JavaFileObject fromSource(String... lines) {
     List<String> sourceLines = withImports(lines);
     return forSourceLines("test.MyData", sourceLines);

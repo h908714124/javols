@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,7 +83,7 @@ public final class Processor extends AbstractProcessor {
     ClassName generatedClass = generatedClass(sourceElement);
     try {
       AnnotationUtil annotationUtil = new AnnotationUtil(tool, sourceElement, Data.class, "value");
-      new DataClassValidator(tool).runChecks(sourceElement);
+      Optional<ExecutableElement> constructor = new DataClassValidator(tool).runChecks(sourceElement);
       TypeElement dataType = annotationUtil.getAttributeValue().orElseThrow(AssertionError::new);
       checkDataType(dataType);
       List<Parameter> parameters = getParams(tool, sourceElement, dataType);
