@@ -56,7 +56,11 @@ which can be used like this:
 
 ````java
 Map<String, String> m = Map.of("name", "Heiko", "age", "26");
-User user = User_Parser.parse(m::get);
+User user = User_Parser.create()
+   .nameMapper(Function.identity())
+   .ageMapper(Integer::parseInt) // throw runtime exception to signal parse error
+   .prepare() // for when the abstract class has a constructor and fields
+   .parse(m::get);
 
 assertEquals("Heiko", user.name());
 assertEquals(26, user.age());
