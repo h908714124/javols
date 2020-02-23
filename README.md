@@ -8,7 +8,7 @@ structures with known `String` keys.
 ### Example
 
 ````java
-@Data(String.class)
+@Data(String.class) // type of the values of your data source
 abstract class User {
 
   @Key("name")
