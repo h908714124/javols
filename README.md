@@ -19,7 +19,7 @@ abstract class User {
 }
 ````
 
-This will generate the following parser:
+This will generate code similar to the following:
 
 ````java
 @Generated
