@@ -14,16 +14,8 @@ abstract class User {
   @Key("name")
   abstract String name();
 
-  @Key(value = "age", mappedBy = NumberMapper.class)
+  @Key("age")
   abstract int age();
-
-  static class NumberMapper implements Function<String, Integer> {
-    public Integer apply(String s) {
-      int result = Integer.parseInt(s);
-      if (result < 0) throw new IllegalArgumentException("Invalid: " + s);
-      return result;
-    }
-  }
 }
 ````
 
@@ -39,9 +31,9 @@ class User_Parser {
 
   static User parse(Function<String, String> f, Function<String, RuntimeException> errMissing) {
     return new UserImpl(
-        Optional.ofNullable(f.apply("name")).map(Function.identity()).orElseThrow(() -> 
+        Optional.ofNullable(f.apply("name")).map(nameMapper).orElseThrow(() -> 
                 errMissing.apply("name")),
-        Optional.ofNullable(f.apply("age")).map(new User.NumberMapper()).orElseThrow(() -> 
+        Optional.ofNullable(f.apply("age")).map(numberMapper).orElseThrow(() -> 
                 errMissing.apply("age")));
   }
 
