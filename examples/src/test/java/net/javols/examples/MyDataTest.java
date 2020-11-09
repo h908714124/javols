@@ -34,7 +34,7 @@ class MyDataTest {
     assertTrue(data.proxy().isPresent());
     List<Proxy> proxies = data.proxy().get().select(URI.create("http://foo.de"));
     assertEquals(1, proxies.size());
-    assertEquals("HTTP @ proxy.intra.net:1234", proxies.get(0).toString());
+    assertEquals("HTTP @ proxy.intra.net/<unresolved>:1234", proxies.get(0).toString());
   }
 
   @Test
